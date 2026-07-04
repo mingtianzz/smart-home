@@ -15,8 +15,8 @@
       </el-table-column>
       <el-table-column label="状态" width="100">
         <template #default="{ row }">
-          <el-tag :type="row.active !== false ? 'success' : 'danger'" size="small" class="status-tag">
-            {{ row.active !== false ? '启用' : '禁用' }}
+          <el-tag :type="row.status !== 'disabled' ? 'success' : 'danger'" size="small" class="status-tag">
+            {{ row.status !== 'disabled' ? '启用' : '禁用' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -25,7 +25,7 @@
         <template #default="{ row }">
           <el-switch
             v-if="row.role !== 'admin'"
-            :model-value="row.active !== false"
+            :model-value="row.status !== 'disabled'"
             @change="toggleUser(row)"
           />
           <span v-else>-</span>
@@ -55,9 +55,9 @@ async function loadUsers() {
   loading.value = true
   try {
     const params = {}
-    if (search.value) params.keyword = search.value
-    const res = await request.get('/users', { params })
-    users.value = res.users || res.data || []
+    if (search.value) params.search = search.value
+    const res = await request.get('/admin/users', { params })
+    users.value = Array.isArray(res) ? res : (res.users || res.data || [])
   } catch {
     users.value = []
   } finally {
@@ -67,9 +67,9 @@ async function loadUsers() {
 
 async function toggleUser(row) {
   try {
-    const newStatus = row.active === false ? true : false
-    await request.put(`/users/${row.id}/toggle`, { active: newStatus })
-    ElMessage.success(newStatus ? '用户已启用' : '用户已禁用')
+    const newStatus = row.status === 'disabled' ? 'active' : 'disabled'
+    await request.put(`/admin/users/${row._id || row.id}/status`, { status: newStatus })
+    ElMessage.success(newStatus === 'active' ? '用户已启用' : '用户已禁用')
     loadUsers()
   } catch {}
 }

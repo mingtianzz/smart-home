@@ -42,7 +42,7 @@
         <el-card shadow="never">
           <div class="table-section-header">热门区域</div>
           <el-table :data="popularAreas" stripe size="small">
-            <el-table-column prop="area" label="区域" />
+            <el-table-column prop="_id" label="区域" />
             <el-table-column prop="count" label="房源数" width="80" />
           </el-table>
           <el-empty v-if="!loading && popularAreas.length === 0" description="暂无数据" />
@@ -51,11 +51,21 @@
       <el-col :span="12">
         <el-card shadow="never">
           <div class="table-section-header">租金分布</div>
-          <el-table :data="rentRanges" stripe size="small">
-            <el-table-column prop="range" label="租金范围" />
-            <el-table-column prop="count" label="房源数" width="80" />
-          </el-table>
-          <el-empty v-if="!loading && rentRanges.length === 0" description="暂无数据" />
+          <div v-if="rentRange.min != null" class="rent-info">
+            <div class="rent-row">
+              <span class="rent-label">最低租金</span>
+              <span class="rent-value">¥{{ rentRange.min?.toLocaleString() }}</span>
+            </div>
+            <div class="rent-row">
+              <span class="rent-label">最高租金</span>
+              <span class="rent-value">¥{{ rentRange.max?.toLocaleString() }}</span>
+            </div>
+            <div class="rent-row">
+              <span class="rent-label">平均租金</span>
+              <span class="rent-value" style="color:#0d7a7a;font-weight:700">¥{{ rentRange.avg?.toFixed(0)?.toLocaleString() }}</span>
+            </div>
+          </div>
+          <el-empty v-else description="暂无数据" />
         </el-card>
       </el-col>
     </el-row>
@@ -67,19 +77,31 @@ import { ref, onMounted } from 'vue'
 import request from '../../utils/request'
 
 const loading = ref(false)
-const stats = ref({})
+const stats = ref({ totalUsers: 0, totalHouses: 0, totalAppointments: 0, totalContracts: 0 })
 const popularAreas = ref([])
-const rentRanges = ref([])
+const rentRange = ref({})
 
 async function loadStats() {
   loading.value = true
   try {
     const res = await request.get('/admin/stats')
-    stats.value = res.stats || res.data || {}
-    popularAreas.value = res.popularAreas || res.stats?.popularAreas || []
-    rentRanges.value = res.rentRanges || res.stats?.rentRanges || []
+
+    const userCount = res.userCount || {}
+    const houseCount = res.houseCount || {}
+    const totalUsers = Object.values(userCount).reduce((a, b) => a + b, 0)
+    const totalHouses = Object.values(houseCount).reduce((a, b) => a + b, 0)
+
+    stats.value = {
+      totalUsers,
+      totalHouses,
+      totalAppointments: res.appointmentCount || 0,
+      totalContracts: res.contractCount || 0,
+    }
+
+    popularAreas.value = Array.isArray(res.popularAreas) ? res.popularAreas : []
+    rentRange.value = res.rentRanges || {}
   } catch {
-    // error handled
+    // handled
   } finally {
     loading.value = false
   }
@@ -107,5 +129,27 @@ onMounted(loadStats)
   font-weight: 600;
   color: #1a1d1d;
   margin-bottom: 16px;
+}
+.rent-info {
+  padding: 8px 4px;
+}
+.rent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef0f0;
+}
+.rent-row:last-child {
+  border-bottom: none;
+}
+.rent-label {
+  font-size: 14px;
+  color: #6b7272;
+}
+.rent-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1d1d;
 }
 </style>

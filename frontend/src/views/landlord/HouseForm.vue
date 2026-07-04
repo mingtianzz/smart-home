@@ -16,22 +16,27 @@
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="面积" prop="area">
-              <el-input-number v-model="form.area" :min="1" :max="10000" style="width:100%" />
+            <el-form-item label="面积(m²)" prop="size">
+              <el-input-number v-model="form.size" :min="1" :max="10000" style="width:100%" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="租金" prop="rent">
+            <el-form-item label="租金(元)" prop="rent">
               <el-input-number v-model="form.rent" :min="0" :max="999999" style="width:100%" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="押金" prop="deposit">
+            <el-form-item label="押金(元)" prop="deposit">
               <el-input-number v-model="form.deposit" :min="0" :max="999999" style="width:100%" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="区域" prop="area">
+              <el-input v-model="form.area" placeholder="如: 朝阳区" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="类型" prop="type">
               <el-select v-model="form.type" style="width:100%">
@@ -40,11 +45,6 @@
                 <el-option label="单间" value="单间" />
                 <el-option label="公寓" value="公寓" />
               </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="户型" prop="size">
-              <el-input v-model="form.size" placeholder="如: 3室2厅" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -84,7 +84,7 @@
           </div>
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" rows="4" placeholder="请描述房屋的详细情况" />
+          <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请描述房屋的详细情况" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitForm" :loading="submitLoading">
@@ -127,7 +127,7 @@ const form = reactive({
 
 const rules = {
   title: [{ required: true, message: '请输入房源标题', trigger: 'blur' }],
-  area: [{ required: true, message: '请输入面积', trigger: 'blur' }],
+  size: [{ required: true, message: '请输入面积', trigger: 'blur' }],
   rent: [{ required: true, message: '请输入租金', trigger: 'blur' }],
   address: [{ required: true, message: '请输入地址', trigger: 'blur' }]
 }
@@ -172,8 +172,8 @@ async function submitForm() {
   try {
     const data = {
       ...form,
-      facilities: JSON.stringify(form.facilities),
-      images: JSON.stringify(form.images)
+      facilities: form.facilities,
+      images: form.images
     }
     if (isEdit.value) {
       await request.put(`/houses/${route.params.id}`, data)

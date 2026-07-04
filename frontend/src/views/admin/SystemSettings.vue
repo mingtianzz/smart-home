@@ -58,10 +58,10 @@ const settings = reactive({
 async function loadSettings() {
   loading.value = true
   try {
-    const res = await request.get('/settings')
+    const res = await request.get('/admin/settings')
     const s = res.settings || res.data || res
-    settings.houseTypes = s.houseTypes || [...defaultHouseTypes]
-    settings.paymentMethods = s.paymentMethods || [...defaultPaymentMethods]
+    settings.houseTypes = Array.isArray(s.houseTypes) ? s.houseTypes : [...defaultHouseTypes]
+    settings.paymentMethods = Array.isArray(s.paymentMethods) ? s.paymentMethods : [...defaultPaymentMethods]
     settings.auditEnabled = s.auditEnabled !== undefined ? s.auditEnabled : true
     if (s.updatedAt) {
       lastUpdated.value = formatTime(s.updatedAt)
@@ -82,7 +82,7 @@ function formatTime(t) {
 async function saveSettings() {
   saveLoading.value = true
   try {
-    const res = await request.put('/settings', { ...settings })
+    const res = await request.put('/admin/settings', { ...settings })
     ElMessage.success('设置保存成功')
     if (res?.updatedAt) {
       lastUpdated.value = formatTime(res.updatedAt)
