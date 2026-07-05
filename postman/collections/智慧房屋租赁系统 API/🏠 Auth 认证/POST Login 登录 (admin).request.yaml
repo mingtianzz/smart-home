@@ -1,0 +1,21 @@
+$kind: http-request
+description: "种子管理员账号 (seed.js): 13800000000 / admin123"
+url: "{{baseUrl}}/auth/login"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "phone": "13800000000",
+      "password": "admin123",
+      "role": "admin"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 200) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('token', json.token);
+      }
+    language: text/javascript
+order: 4000

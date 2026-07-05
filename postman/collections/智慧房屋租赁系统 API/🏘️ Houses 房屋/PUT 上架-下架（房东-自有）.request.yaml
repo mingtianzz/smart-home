@@ -1,0 +1,12 @@
+$kind: http-request
+name: PUT 上架/下架（房东-自有）
+description: "status: approved（上架）| offline（下架）"
+url: "{{baseUrl}}/houses/{{houseId}}/status"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "status": "offline"
+    }
+order: 8000

@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/houses"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "title": "精装修两室一厅",
+      "area": "朝阳区",
+      "address": "北京市朝阳区建国路100号",
+      "rent": 3500,
+      "deposit": 3500,
+      "type": "两室一厅",
+      "size": 80,
+      "floor": "12层/共18层",
+      "facilities": ["冰箱", "洗衣机", "空调", "热水器"],
+      "description": "交通便利，采光好，拎包入住",
+      "images": ["https://example.com/img1.jpg"]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('houseId', json._id);
+      }
+    language: text/javascript
+order: 6000

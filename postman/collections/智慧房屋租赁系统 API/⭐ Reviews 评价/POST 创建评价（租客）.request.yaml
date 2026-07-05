@@ -1,0 +1,21 @@
+$kind: http-request
+description: "score: 1-5；同一租客对同一房源不可重复评价"
+url: "{{baseUrl}}/reviews"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "houseId": "{{houseId}}",
+      "score": 5,
+      "content": "非常好的房子，房东很热情！"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('reviewId', json._id);
+      }
+    language: text/javascript
+order: 3000

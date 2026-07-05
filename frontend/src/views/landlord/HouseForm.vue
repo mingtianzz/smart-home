@@ -12,22 +12,22 @@
         v-loading="loading"
       >
         <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入房源标题" />
+          <el-input v-model="form.title" placeholder="请输入房源标题" size="large" />
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="面积(m²)" prop="size">
-              <el-input-number v-model="form.size" :min="1" :max="10000" style="width:100%" />
+              <el-input-number v-model="form.size" :min="1" :max="10000" style="width:100%" size="large" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="租金(元)" prop="rent">
-              <el-input-number v-model="form.rent" :min="0" :max="999999" style="width:100%" />
+              <el-input-number v-model="form.rent" :min="0" :max="999999" style="width:100%" size="large" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="押金(元)" prop="deposit">
-              <el-input-number v-model="form.deposit" :min="0" :max="999999" style="width:100%" />
+              <el-input-number v-model="form.deposit" :min="0" :max="999999" style="width:100%" size="large" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -68,8 +68,8 @@
         </el-form-item>
         <el-form-item label="房屋图片" prop="images">
           <div class="flex-row">
-            <el-input v-model="imageInput" placeholder="输入图片URL后添加" style="width:400px" class="mr-10" />
-            <el-button @click="addImage">添加</el-button>
+            <el-input v-model="imageInput" placeholder="输入图片URL后点击添加" style="width:420px" class="mr-10" />
+            <el-button @click="addImage" class="add-image-btn">添加图片</el-button>
           </div>
           <div class="image-list" v-if="form.images.length">
             <el-tag
@@ -87,10 +87,10 @@
           <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请描述房屋的详细情况" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitForm" :loading="submitLoading">
+          <el-button type="primary" @click="submitForm" :loading="submitLoading" class="submit-btn" size="large">
             {{ isEdit ? '保存修改' : '提交审核' }}
           </el-button>
-          <el-button @click="$router.back()">取消</el-button>
+          <el-button @click="$router.back()" class="cancel-btn" size="large">取消</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -145,24 +145,15 @@ async function loadHouse() {
   try {
     const res = await request.get(`/houses/${route.params.id}`)
     const h = res.house || res.data || res
-    form.title = h.title || ''
-    form.area = h.area
-    form.rent = h.rent
-    form.deposit = h.deposit
-    form.type = h.type || ''
-    form.size = h.size || ''
-    form.address = h.address || ''
+    form.title = h.title || ''; form.area = h.area; form.rent = h.rent; form.deposit = h.deposit
+    form.type = h.type || ''; form.size = h.size || ''; form.address = h.address || ''
     form.description = h.description || ''
     if (Array.isArray(h.facilities)) form.facilities = [...h.facilities]
     else if (typeof h.facilities === 'string') {
       try { form.facilities = JSON.parse(h.facilities) } catch { form.facilities = [] }
     }
     form.images = Array.isArray(h.images) ? [...h.images] : []
-  } catch {
-    ElMessage.error('加载房源信息失败')
-  } finally {
-    loading.value = false
-  }
+  } catch { ElMessage.error('加载房源信息失败') } finally { loading.value = false }
 }
 
 async function submitForm() {
@@ -170,11 +161,7 @@ async function submitForm() {
   if (!valid) return
   submitLoading.value = true
   try {
-    const data = {
-      ...form,
-      facilities: form.facilities,
-      images: form.images
-    }
+    const data = { ...form, facilities: form.facilities, images: form.images }
     if (isEdit.value) {
       await request.put(`/houses/${route.params.id}`, data)
       ElMessage.success('保存成功')
@@ -183,11 +170,7 @@ async function submitForm() {
       ElMessage.success('发布成功，等待管理员审核')
     }
     router.push('/landlord/houses')
-  } catch {
-    // handled
-  } finally {
-    submitLoading.value = false
-  }
+  } catch {} finally { submitLoading.value = false }
 }
 
 onMounted(loadHouse)
@@ -195,24 +178,37 @@ onMounted(loadHouse)
 
 <style scoped>
 .form-card-wrapper {
-  max-width: 800px;
-  border-radius: 8px;
+  max-width: 820px;
+  border-radius: 14px;
+  border: 1px solid #eff1f1;
 }
+.form-card-wrapper :deep(.el-card__body) { padding: 32px 36px; }
+
 .image-list {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 .image-tag {
-  max-width: 200px;
-  overflow: hidden;
+  max-width: 200px; overflow: hidden;
+  border: none; border-radius: 6px;
+  font-size: 12px;
+  background: linear-gradient(135deg, #d9f2f2, #e8f5f5);
+  color: #0d7a7a;
 }
-.mr-10 {
-  margin-right: 8px;
+.mr-10 { margin-right: 12px; }
+.flex-row { display: flex; align-items: center; }
+
+.add-image-btn {
+  color: #0d7a7a; border-color: #a8d8d8; font-weight: 500;
+  transition: all 200ms ease;
 }
-.flex-row {
-  display: flex;
-  align-items: center;
+.add-image-btn:hover {
+  color: #fff; background: #0d7a7a; border-color: #0d7a7a;
 }
+
+.submit-btn { min-width: 130px; }
+.cancel-btn { color: #6b7272; border-color: #e4e8e8; }
+.cancel-btn:hover { color: #0d7a7a; border-color: #0d7a7a; background: rgba(13, 122, 122, 0.04); }
 </style>

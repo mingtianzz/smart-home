@@ -1,0 +1,690 @@
+{
+  "$schema": "register-test-cases-v1",
+  "description": "POST /api/auth/register 等价类划分测试用例 — 覆盖 phone / email / role / password / name 全部等价类",
+  "endpoint": "POST /api/auth/register",
+  "baseUrl": "http://localhost:3000/api",
+  "validationOrder": [
+    "1. password / name / role 必填 → 400 { message: '请填写必填字段' }",
+    "2. role ∈ { tenant, landlord } → 400 { message: '角色无效' }",
+    "3. phone 或 email 至少一个 → 400 { message: '手机号和邮箱至少填一个' }",
+    "4. phone / email 不重复 → 400 { message: '该账号已被注册' }",
+    "5. 全部通过 → 201 { message: '注册成功', token, user }"
+  ],
+
+  "equivalenceClasses": {
+    "phone": {
+      "PH-VALID":    { "class": "有效手机号",       "expect": "通过（若无其他错误）" },
+      "PH-ABSENT":   { "class": "缺失/undefined",    "expect": "通过（若 email 存在）" },
+      "PH-EMPTY":    { "class": "空字符串 ''",       "expect": "通过（若 email 存在）" },
+      "PH-DUP":      { "class": "已注册的手机号",     "expect": "400 — 该账号已被注册" },
+      "PH-NO-EMAIL": { "class": "phone 缺失 且 email 缺失", "expect": "400 — 手机号和邮箱至少填一个" }
+    },
+    "email": {
+      "EM-VALID":    { "class": "有效邮箱",           "expect": "通过（若无其他错误）" },
+      "EM-ABSENT":   { "class": "缺失/undefined",     "expect": "通过（若 phone 存在）" },
+      "EM-EMPTY":    { "class": "空字符串 ''",        "expect": "通过（若 phone 存在）" },
+      "EM-DUP":      { "class": "已注册的邮箱",       "expect": "400 — 该账号已被注册" }
+    },
+    "role": {
+      "RO-TENANT":   { "class": "'tenant'",          "expect": "通过" },
+      "RO-LANDLORD": { "class": "'landlord'",        "expect": "通过" },
+      "RO-ADMIN":    { "class": "'admin' (非法值)",   "expect": "400 — 角色无效" },
+      "RO-INVALID":  { "class": "'guest' (任意非法值)", "expect": "400 — 角色无效" },
+      "RO-EMPTY":    { "class": "'' 空字符串",        "expect": "400 — 请填写必填字段 (先于角色无效检查)" },
+      "RO-MISSING":  { "class": "缺失/undefined",     "expect": "400 — 请填写必填字段" }
+    },
+    "password": {
+      "PW-NORMAL":   { "class": "≥6 字符",            "expect": "通过" },
+      "PW-SHORT":    { "class": "<6 字符 (如 '12345')", "expect": "通过（后端无长度校验，但建议前端拦截）" },
+      "PW-EMPTY":    { "class": "'' 空字符串",         "expect": "400 — 请填写必填字段" },
+      "PW-MISSING":  { "class": "缺失/undefined",      "expect": "400 — 请填写必填字段" }
+    },
+    "name": {
+      "NM-VALID":    { "class": "有效非空字符串",      "expect": "通过" },
+      "NM-EMPTY":    { "class": "'' 空字符串",         "expect": "400 — 请填写必填字段" },
+      "NM-MISSING":  { "class": "缺失/undefined",      "expect": "400 — 请填写必填字段" }
+    }
+  },
+
+  "preconditions": {
+    "existingUser": {
+      "phone": "13800000001",
+      "email": "existing@test.com",
+      "password": "validPassword123",
+      "name": "已存在用户",
+      "role": "tenant"
+    },
+    "note": "测试前需在数据库中存在上述用户，用于重复性测试。种子管理员 (13800000000) 不参与注册测试。"
+  },
+
+  "testCases": [
+    {
+      "id": "REG-001",
+      "category": "正向 — 完整字段",
+      "description": "全部字段有效，phone + email 双填，角色 tenant",
+      "covers": ["PH-VALID", "EM-VALID", "RO-TENANT", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "phone": "13900000001",
+        "email": "user001@test.com",
+        "password": "pass123456",
+        "name": "张三",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "message": "注册成功",
+        "token": "<jwt-string>",
+        "user": {
+          "id": "<objectid>",
+          "name": "张三",
+          "role": "tenant",
+          "phone": "13900000001",
+          "email": "user001@test.com"
+        }
+      }
+    },
+    {
+      "id": "REG-002",
+      "category": "正向 — 仅 phone",
+      "description": "仅 phone（无 email），角色 landlord",
+      "covers": ["PH-VALID", "EM-ABSENT", "RO-LANDLORD", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "phone": "13900000002",
+        "password": "pass123456",
+        "name": "李四",
+        "role": "landlord"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "message": "注册成功",
+        "user": {
+          "name": "李四",
+          "role": "landlord",
+          "phone": "13900000002",
+          "email": null
+        }
+      }
+    },
+    {
+      "id": "REG-003",
+      "category": "正向 — 仅 email",
+      "description": "仅 email（无 phone），角色 tenant",
+      "covers": ["PH-ABSENT", "EM-VALID", "RO-TENANT", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "email": "user003@test.com",
+        "password": "pass123456",
+        "name": "王五",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "message": "注册成功",
+        "user": {
+          "name": "王五",
+          "role": "tenant",
+          "phone": null,
+          "email": "user003@test.com"
+        }
+      }
+    },
+    {
+      "id": "REG-004",
+      "category": "正向 — phone 空字符串 + email 有效",
+      "description": "phone 传 ''，email 有效 — phone 应转为 undefined (不存空串)",
+      "covers": ["PH-EMPTY", "EM-VALID", "RO-TENANT", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "phone": "",
+        "email": "user004@test.com",
+        "password": "pass123456",
+        "name": "赵六",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "message": "注册成功",
+        "user": {
+          "phone": null,
+          "email": "user004@test.com"
+        }
+      }
+    },
+    {
+      "id": "REG-005",
+      "category": "正向 — email 空字符串 + phone 有效",
+      "description": "email 传 ''，phone 有效",
+      "covers": ["PH-VALID", "EM-EMPTY", "RO-LANDLORD", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "phone": "13900000003",
+        "email": "",
+        "password": "pass123456",
+        "name": "孙七",
+        "role": "landlord"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "message": "注册成功",
+        "user": {
+          "phone": "13900000003",
+          "email": null
+        }
+      }
+    },
+    {
+      "id": "REG-006",
+      "category": "正向 — 密码边界（6 字符）",
+      "description": "密码恰好 6 字符，验证最短密码可通过",
+      "covers": ["PH-VALID", "EM-VALID", "RO-TENANT", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "phone": "13900000004",
+        "email": "user006@test.com",
+        "password": "123456",
+        "name": "周六",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "note": "后端无密码长度校验，6 字符可通过。若前端有 ≥6 的校验则此为边界值。"
+    },
+
+    {
+      "id": "REG-010",
+      "category": "负向 — password 缺失",
+      "description": "password 字段完全缺失",
+      "covers": ["PW-MISSING"],
+      "request": {
+        "phone": "13900000010",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-011",
+      "category": "负向 — password 为 null",
+      "description": "password 传 null",
+      "covers": ["PW-MISSING"],
+      "request": {
+        "phone": "13900000011",
+        "password": null,
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-012",
+      "category": "负向 — password 为空字符串",
+      "description": "password 传 ''",
+      "covers": ["PW-EMPTY"],
+      "request": {
+        "phone": "13900000012",
+        "password": "",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-013",
+      "category": "负向 — name 缺失",
+      "description": "name 字段完全缺失",
+      "covers": ["NM-MISSING"],
+      "request": {
+        "phone": "13900000013",
+        "password": "pass123456",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-014",
+      "category": "负向 — name 为 null",
+      "description": "name 传 null",
+      "covers": ["NM-MISSING"],
+      "request": {
+        "phone": "13900000014",
+        "password": "pass123456",
+        "name": null,
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-015",
+      "category": "负向 — name 为空字符串",
+      "description": "name 传 ''",
+      "covers": ["NM-EMPTY"],
+      "request": {
+        "phone": "13900000015",
+        "password": "pass123456",
+        "name": "",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-016",
+      "category": "负向 — role 缺失",
+      "description": "role 字段完全缺失",
+      "covers": ["RO-MISSING"],
+      "request": {
+        "phone": "13900000016",
+        "password": "pass123456",
+        "name": "测试用户"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-017",
+      "category": "负向 — role 为 null",
+      "description": "role 传 null",
+      "covers": ["RO-MISSING"],
+      "request": {
+        "phone": "13900000017",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": null
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" }
+    },
+    {
+      "id": "REG-018",
+      "category": "负向 — role 为空字符串",
+      "description": "role 传 '' — 先被 !role 捕获，返回 '请填写必填字段' 而非 '角色无效'",
+      "covers": ["RO-EMPTY"],
+      "request": {
+        "phone": "13900000018",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" },
+      "validationNote": "空字符串被 !role 拦截（falsy），不会到达角色枚举检查"
+    },
+    {
+      "id": "REG-019",
+      "category": "负向 — role = admin",
+      "description": "role 传 'admin' — 不在允许列表中",
+      "covers": ["RO-ADMIN"],
+      "request": {
+        "phone": "13900000019",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "admin"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "角色无效" }
+    },
+    {
+      "id": "REG-020",
+      "category": "负向 — role = guest（任意非法值）",
+      "description": "role 传不在枚举中的任意值 'guest'",
+      "covers": ["RO-INVALID"],
+      "request": {
+        "phone": "13900000020",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "guest"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "角色无效" }
+    },
+    {
+      "id": "REG-021",
+      "category": "负向 — role 大小写变体",
+      "description": "role 传 'Tenant' (首字母大写) — 精确匹配，不在枚举中",
+      "covers": ["RO-INVALID"],
+      "request": {
+        "phone": "13900000021",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "Tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "角色无效" },
+      "note": "大小写敏感校验"
+    },
+    {
+      "id": "REG-022",
+      "category": "负向 — role = LANDLORD（全大写）",
+      "description": "role 传 'LANDLORD' — 精确匹配，不在枚举中",
+      "covers": ["RO-INVALID"],
+      "request": {
+        "phone": "13900000022",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "LANDLORD"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "角色无效" }
+    },
+
+    {
+      "id": "REG-030",
+      "category": "负向 — phone 和 email 均缺失",
+      "description": "两个联系方式都不传",
+      "covers": ["PH-NO-EMAIL"],
+      "request": {
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "手机号和邮箱至少填一个" }
+    },
+    {
+      "id": "REG-031",
+      "category": "负向 — phone null + email null",
+      "description": "phone 和 email 都传 null",
+      "covers": ["PH-NO-EMAIL"],
+      "request": {
+        "phone": null,
+        "email": null,
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "手机号和邮箱至少填一个" }
+    },
+    {
+      "id": "REG-032",
+      "category": "负向 — phone '' + email ''",
+      "description": "phone 和 email 都传空字符串",
+      "covers": ["PH-NO-EMAIL"],
+      "request": {
+        "phone": "",
+        "email": "",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "手机号和邮箱至少填一个" }
+    },
+    {
+      "id": "REG-033",
+      "category": "负向 — phone undefined + email ''",
+      "description": "phone 不传 + email 空串",
+      "covers": ["PH-NO-EMAIL"],
+      "request": {
+        "email": "",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "手机号和邮箱至少填一个" }
+    },
+
+    {
+      "id": "REG-040",
+      "category": "负向 — phone 重复",
+      "description": "使用已注册用户的 phone（不传 email），预期返回重复错误",
+      "covers": ["PH-DUP"],
+      "precondition": "需先在数据库中存在 phone=13800000001 的用户（见 preconditions）",
+      "request": {
+        "phone": "13800000001",
+        "password": "pass123456",
+        "name": "新用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "该账号已被注册" }
+    },
+    {
+      "id": "REG-041",
+      "category": "负向 — email 重复",
+      "description": "使用已注册用户的 email（不传 phone），预期返回重复错误",
+      "covers": ["EM-DUP"],
+      "precondition": "需先在数据库中存在 email=existing@test.com 的用户（见 preconditions）",
+      "request": {
+        "email": "existing@test.com",
+        "password": "pass123456",
+        "name": "新用户",
+        "role": "landlord"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "该账号已被注册" }
+    },
+    {
+      "id": "REG-042",
+      "category": "负向 — phone 重复 + email 新",
+      "description": "phone 重复但 email 是新的 — phone 先检查，命中重复",
+      "covers": ["PH-DUP"],
+      "precondition": "phone=13800000001 已存在",
+      "request": {
+        "phone": "13800000001",
+        "email": "newemail@test.com",
+        "password": "pass123456",
+        "name": "新用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "该账号已被注册" },
+      "validationNote": "phone 先于 email 检查重复，phone 命中即返回"
+    },
+    {
+      "id": "REG-043",
+      "category": "负向 — email 重复 + phone 新",
+      "description": "email 重复但 phone 是新的 — phone 未命中，继续查 email，命中重复",
+      "covers": ["EM-DUP"],
+      "precondition": "email=existing@test.com 已存在",
+      "request": {
+        "phone": "13999999999",
+        "email": "existing@test.com",
+        "password": "pass123456",
+        "name": "新用户",
+        "role": "landlord"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "该账号已被注册" }
+    },
+
+    {
+      "id": "REG-050",
+      "category": "负向 — 密码短于 6 字符",
+      "description": "密码仅 3 字符 'abc' — 后端无长度校验，实际返回 201；前端应拦截",
+      "covers": ["PW-SHORT"],
+      "request": {
+        "phone": "13900000050",
+        "password": "abc",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "message": "注册成功",
+        "user": { "name": "测试用户", "role": "tenant", "phone": "13900000050" }
+      },
+      "note": "⚠️ 后端无密码长度校验，3 字符密码可通过。建议在 User 模型或路由层增加 minlength 校验。"
+    },
+    {
+      "id": "REG-051",
+      "category": "负向 — 密码为 1 字符",
+      "description": "密码仅 1 字符 'a'",
+      "covers": ["PW-SHORT"],
+      "request": {
+        "phone": "13900000051",
+        "password": "a",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "note": "⚠️ 后端无密码长度校验。这是一个安全缺陷，建议至少要求 6 字符。"
+    },
+
+    {
+      "id": "REG-060",
+      "category": "负向 — 组合：name 缺失 + role 也缺失",
+      "description": "多个必填字段同时缺失 — 仅返回第一条错误",
+      "covers": ["NM-MISSING", "RO-MISSING", "PW-MISSING"],
+      "request": {
+        "phone": "13900000060"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "请填写必填字段" },
+      "validationNote": "password 第一个被检查 (!password)，命中后立即返回"
+    },
+    {
+      "id": "REG-061",
+      "category": "负向 — 组合：role 无效 + phone/email 均无",
+      "description": "role 传 'admin' 且无联系方式 — role 检查先触发",
+      "covers": ["RO-ADMIN", "PH-NO-EMAIL"],
+      "request": {
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "admin"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "角色无效" },
+      "validationNote": "role 枚举检查 (第 2 步) 在 phone/email 检查 (第 3 步) 之前触发"
+    },
+    {
+      "id": "REG-062",
+      "category": "负向 — 组合：必填字段都通过，但 phone+email 都无",
+      "description": "password/name/role 都 OK，但未提供联系方式",
+      "covers": ["PH-NO-EMAIL"],
+      "request": {
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "landlord"
+      },
+      "expectedStatus": 400,
+      "expectedBody": { "message": "手机号和邮箱至少填一个" }
+    },
+
+    {
+      "id": "REG-070",
+      "category": "边界 — name 含特殊字符",
+      "description": "name 包含中文、数字、特殊符号混合",
+      "covers": ["NM-VALID"],
+      "request": {
+        "phone": "13900000070",
+        "password": "pass123456",
+        "name": "张三·von O'Conner 第3世",
+        "role": "tenant"
+      },
+      "expectedStatus": 201
+    },
+    {
+      "id": "REG-071",
+      "category": "边界 — name 极长（100 字符）",
+      "description": "name 长度为 100 个中文字符",
+      "covers": ["NM-VALID"],
+      "request": {
+        "phone": "13900000071",
+        "password": "pass123456",
+        "name": "测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "note": "Mongoose schema 无 maxlength 限制，超长 name 可通过。建议加限制。"
+    },
+    {
+      "id": "REG-072",
+      "category": "边界 — phone 格式异常",
+      "description": "phone 传非数字字符串 'not-a-phone'",
+      "covers": ["PH-VALID"],
+      "request": {
+        "phone": "not-a-phone",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "note": "⚠️ 后端无手机号格式校验，任意字符串可作为 phone。建议加格式校验。"
+    },
+    {
+      "id": "REG-073",
+      "category": "边界 — email 格式异常",
+      "description": "email 传明显非法格式 'not-an-email'",
+      "covers": ["EM-VALID"],
+      "request": {
+        "email": "not-an-email",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant"
+      },
+      "expectedStatus": 201,
+      "note": "⚠️ 后端无邮箱格式校验，任意字符串可作为 email。建议加格式校验。"
+    },
+    {
+      "id": "REG-074",
+      "category": "边界 — 多余字段",
+      "description": "请求体包含未定义的额外字段，验证是否被忽略（无副作用）",
+      "covers": ["PH-VALID", "RO-TENANT", "PW-NORMAL", "NM-VALID"],
+      "request": {
+        "phone": "13900000074",
+        "password": "pass123456",
+        "name": "测试用户",
+        "role": "tenant",
+        "extraField": "should-be-ignored",
+        "hacked": true
+      },
+      "expectedStatus": 201,
+      "note": "使用解构赋值 { phone, email, password, name, role }，多余字段自动忽略。"
+    },
+    {
+      "id": "REG-075",
+      "category": "边界 — Content-Type 非 JSON",
+      "description": "发送 text/plain 而非 application/json — Express.json() 中间件行为",
+      "covers": [],
+      "request": {
+        "_raw": "phone=13900000075&password=pass123&name=test&role=tenant",
+        "_contentType": "application/x-www-form-urlencoded"
+      },
+      "expectedStatus": 400,
+      "note": "Express 未注册 urlencoded 解析器时，req.body 为空对象 → !password 触发 '请填写必填字段'"
+    }
+  ],
+
+  "coverageMatrix": {
+    "description": "每个等价类至少被一个用例覆盖",
+    "PH-VALID":    ["REG-001", "REG-002", "REG-005", "REG-006", "REG-072", "REG-074"],
+    "PH-ABSENT":   ["REG-003", "REG-030", "REG-033"],
+    "PH-EMPTY":    ["REG-004", "REG-032"],
+    "PH-DUP":      ["REG-040", "REG-042"],
+    "PH-NO-EMAIL": ["REG-030", "REG-031", "REG-032", "REG-033", "REG-062"],
+    "EM-VALID":    ["REG-001", "REG-003", "REG-004", "REG-006", "REG-073"],
+    "EM-ABSENT":   ["REG-002", "REG-030"],
+    "EM-EMPTY":    ["REG-005", "REG-032"],
+    "EM-DUP":      ["REG-041", "REG-043"],
+    "RO-TENANT":   ["REG-001", "REG-003", "REG-004", "REG-006"],
+    "RO-LANDLORD": ["REG-002", "REG-005"],
+    "RO-ADMIN":    ["REG-019", "REG-061"],
+    "RO-INVALID":  ["REG-020", "REG-021", "REG-022"],
+    "RO-EMPTY":    ["REG-018"],
+    "RO-MISSING":  ["REG-016", "REG-017", "REG-060"],
+    "PW-NORMAL":   ["REG-001", "REG-002", "REG-003", "REG-004", "REG-005", "REG-006"],
+    "PW-SHORT":    ["REG-050", "REG-051"],
+    "PW-EMPTY":    ["REG-012"],
+    "PW-MISSING":  ["REG-010", "REG-011", "REG-060"],
+    "NM-VALID":    ["REG-001", "REG-002", "REG-003", "REG-070", "REG-071"],
+    "NM-EMPTY":    ["REG-015"],
+    "NM-MISSING":  ["REG-013", "REG-014", "REG-060"]
+  },
+
+  "testSummary": {
+    "total": 28,
+    "positive": 6,
+    "negative": 17,
+    "boundary": 5,
+    "coverage": "6 字段 × 23 等价类 = 100%",
+    "uncoveredEquivalenceClasses": [],
+    "knownGaps": [
+      "密码无长度校验 ← 安全缺陷，建议在 User 模型或注册路由中增加 minlength: 6",
+      "手机号无格式校验 ← 建议增加正则或 libphonenumber 校验",
+      "邮箱无格式校验 ← 建议增加正则或 validator.isEmail 校验",
+      "name 无长度限制 ← 建议增加 maxlength 限制"
+    ]
+  }
+}

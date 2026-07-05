@@ -1,0 +1,861 @@
+{
+  "info": {
+    "name": "智慧房屋租赁系统 API",
+    "description": "后端全部 37 个端点，按模块分文件夹。导入 Postman 后需创建 Environment 设置 baseUrl 和 token 变量。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "manual"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "登录后自动填充（Tests 脚本），也可手动粘贴"
+    },
+    {
+      "key": "houseId",
+      "value": "",
+      "type": "string",
+      "description": "创建房源后从响应中提取"
+    },
+    {
+      "key": "appointmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "contractId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tenantId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 如需自动刷新 token，可在此处调用 refresh 逻辑",
+          "// 当前为空 — 手动执行 Login 后 token 自动填充"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🏠 Auth 认证",
+      "item": [
+        {
+          "name": "POST Register 注册",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"name\": \"张三\",\n  \"role\": \"tenant\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "公开接口。注册成功自动保存 token 到 Collection 变量。"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login 登录 (tenant)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Token: ' + json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login 登录 (landlord)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"pass123456\",\n  \"role\": \"landlord\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login 登录 (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13800000000\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "种子管理员账号 (seed.js): 13800000000 / admin123"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Me 当前用户信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Profile 更新个人资料",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"新名字\",\n  \"phone\": \"13900000001\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏘️ Houses 房屋",
+      "item": [
+        {
+          "name": "GET 房源列表（公开搜索）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/houses?area=&minRent=&maxRent=&type=&keyword=&page=1&limit=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses"],
+              "query": [
+                { "key": "area",      "value": "", "description": "区域模糊匹配", "disabled": true },
+                { "key": "minRent",   "value": "", "description": "最低租金",     "disabled": true },
+                { "key": "maxRent",   "value": "", "description": "最高租金",     "disabled": true },
+                { "key": "type",      "value": "", "description": "房屋类型",     "disabled": true },
+                { "key": "keyword",   "value": "", "description": "标题/地址搜索", "disabled": true },
+                { "key": "page",      "value": "1",  "description": "页码" },
+                { "key": "limit",     "value": "12", "description": "每页条数(≤100)" }
+              ]
+            },
+            "description": "公开接口，仅返回 status=approved 的房源。"
+          },
+          "response": []
+        },
+        {
+          "name": "GET 房源详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/houses/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "{{houseId}}"]
+            },
+            "description": "公开接口。需先在 URL 中替换 {{houseId}} 为实际 ID。"
+          },
+          "response": []
+        },
+        {
+          "name": "GET 我的房源（房东）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/houses/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "my"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET 全部房源（管理员）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/houses/all?status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "all"],
+              "query": [
+                { "key": "status", "value": "", "description": "可选: pending/approved/rejected/offline", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET 待审核房源（管理员）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/houses/pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "pending"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST 发布新房源（房东）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('houseId', json._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"精装修两室一厅\",\n  \"area\": \"朝阳区\",\n  \"address\": \"北京市朝阳区建国路100号\",\n  \"rent\": 3500,\n  \"deposit\": 3500,\n  \"type\": \"两室一厅\",\n  \"size\": 80,\n  \"floor\": \"12层/共18层\",\n  \"facilities\": [\"冰箱\", \"洗衣机\", \"空调\", \"热水器\"],\n  \"description\": \"交通便利，采光好，拎包入住\",\n  \"images\": [\"https://example.com/img1.jpg\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/houses",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 编辑房源（房东-自有）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"已降价-精装修两室一厅\",\n  \"rent\": 3200\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/houses/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "{{houseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 上架/下架（房东-自有）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"offline\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/houses/{{houseId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "{{houseId}}", "status"]
+            },
+            "description": "status: approved（上架）| offline（下架）"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 审核房源（管理员）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"rejectReason\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/houses/{{houseId}}/review",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "{{houseId}}", "review"]
+            },
+            "description": "status: approved | rejected。拒绝时 fill rejectReason。"
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE 软删除房源（房东-自有）",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/houses/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "{{houseId}}"]
+            },
+            "description": "不真删除，status → offline"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📅 Appointments 预约",
+      "item": [
+        {
+          "name": "GET 预约列表（角色自适应）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments?status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"],
+              "query": [
+                { "key": "status", "value": "", "description": "可选: pending/confirmed/rejected/cancelled", "disabled": true }
+              ]
+            },
+            "description": "tenant → 自己的预约；landlord → 名下房源的预约；admin → 全部"
+          },
+          "response": []
+        },
+        {
+          "name": "POST 创建预约（租客）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('appointmentId', json._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"visitDate\": \"2026-07-10\",\n  \"visitTime\": \"14:00\",\n  \"contact\": \"13800000000\",\n  \"remark\": \"下班后看房\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 确认预约（房东）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}", "confirm"]
+            },
+            "description": "仅 pending → confirmed，需房东本人"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 拒绝预约（房东）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"时间冲突，无法安排\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}", "reject"]
+            },
+            "description": "仅 pending → rejected，需房东本人"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 取消预约（租客）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}", "cancel"]
+            },
+            "description": "仅 pending → cancelled，需租客本人"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📝 Contracts 合同",
+      "item": [
+        {
+          "name": "GET 合同列表（角色自适应）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contracts",
+              "host": ["{{baseUrl}}"],
+              "path": ["contracts"]
+            },
+            "description": "tenant → 自己的合同；landlord → 名下房源的合同；admin → 全部"
+          },
+          "response": []
+        },
+        {
+          "name": "GET 合同详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/{{contractId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["contracts", "{{contractId}}"]
+            },
+            "description": "需合同双方或 admin"
+          },
+          "response": []
+        },
+        {
+          "name": "POST 创建合同（房东）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('contractId', json._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"houseId\": \"{{houseId}}\",\n  \"startDate\": \"2026-08-01\",\n  \"endDate\": \"2027-07-31\",\n  \"rent\": 3500,\n  \"deposit\": 3500\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contracts",
+              "host": ["{{baseUrl}}"],
+              "path": ["contracts"]
+            },
+            "description": "所有字段必填。房源必须属于当前房东。"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 签署合同（租客/房东）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/{{contractId}}/sign",
+              "host": ["{{baseUrl}}"],
+              "path": ["contracts", "{{contractId}}", "sign"]
+            },
+            "description": "租客签 → signedByTenant；房东签 → signedByLandlord；双方签 → status=signed"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 终止合同（任意一方）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/{{contractId}}/terminate",
+              "host": ["{{baseUrl}}"],
+              "path": ["contracts", "{{contractId}}", "terminate"]
+            },
+            "description": "status → terminated"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💰 Finance 财务",
+      "item": [
+        {
+          "name": "GET 财务记录列表（房东）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/finance?month=&houseId=",
+              "host": ["{{baseUrl}}"],
+              "path": ["finance"],
+              "query": [
+                { "key": "month",   "value": "", "description": "YYYY-MM 格式", "disabled": true },
+                { "key": "houseId", "value": "", "description": "房源 ID",      "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST 添加财务记录（房东）",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"contractId\": \"{{contractId}}\",\n  \"amount\": 3500,\n  \"month\": \"2026-08\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/finance",
+              "host": ["{{baseUrl}}"],
+              "path": ["finance"]
+            },
+            "description": "所有字段必填"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⭐ Reviews 评价",
+      "item": [
+        {
+          "name": "GET 房源评价（公开）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/house/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "house", "{{houseId}}"]
+            },
+            "description": "公开接口。返回 { reviews, averageScore, total }"
+          },
+          "response": []
+        },
+        {
+          "name": "GET 我的评价（租客）",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "my"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST 创建评价（租客）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('reviewId', json._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"score\": 5,\n  \"content\": \"非常好的房子，房东很热情！\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews"]
+            },
+            "description": "score: 1-5；同一租客对同一房源不可重复评价"
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 切换评价可见性（管理员）",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{reviewId}}/hide",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{reviewId}}", "hide"]
+            },
+            "description": "切换 visible 布尔值。每次调用翻转一次。"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔧 Admin 管理",
+      "item": [
+        {
+          "name": "GET 用户列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?search=&role=",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                { "key": "search", "value": "", "description": "模糊搜索姓名/手机号", "disabled": true },
+                { "key": "role",   "value": "", "description": "tenant | landlord | admin", "disabled": true }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 启用/禁用用户",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('userId', json._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"disabled\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "status"]
+            },
+            "description": "status: active | disabled"
+          },
+          "response": []
+        },
+        {
+          "name": "GET 统计面板",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET 系统设置",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "settings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT 更新系统设置",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseTypes\": [\"一室\", \"两室一厅\", \"三室一厅\", \"整租\"],\n  \"paymentMethods\": [\"月付\", \"季付\", \"半年付\", \"年付\"],\n  \"auditEnabled\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "settings"]
+            },
+            "description": "传入任意 key-value 对，逐个 upsert"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💚 Health 健康检查",
+      "item": [
+        {
+          "name": "GET 健康检查",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "无需认证。返回 { status: 'ok', time: 'ISO' }"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

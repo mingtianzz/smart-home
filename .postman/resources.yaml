@@ -1,0 +1,15 @@
+# Use this workspace to collaborate
+workspace:
+  id: 3bc1c9cf-c5e5-42a6-8579-d07544b81c68
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/智慧房屋租赁系统 API: e7b40e33-b1d9-4d68-b5d4-d3f72bbbc96e
+
+# All resources in the `postman/` folder are automatically registered in Local View.
+# Point to additional files outside the `postman/` folder to register them individually. Example:
+#localResources:
+#  collections:
+#    - ../tests/E2E Test Collection/

@@ -1,0 +1,11 @@
+$kind: http-request
+description: 仅 pending → rejected，需房东本人
+url: "{{baseUrl}}/appointments/{{appointmentId}}/reject"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "reason": "时间冲突，无法安排"
+    }
+order: 4000

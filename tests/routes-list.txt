@@ -1,0 +1,90 @@
+# 智慧房屋租赁系统 — 全部后端路由清单
+# Base URL: http://localhost:3000/api
+# 可直接逐行复制至 Postman / curl
+
+# ============================================
+# AUTH 认证 — prefix: /auth
+# ============================================
+
+POST    /auth/register          # 注册  [公开]
+POST    /auth/login             # 登录  [公开]
+GET     /auth/me                # 当前用户信息  [需登录]
+PUT     /auth/profile           # 更新个人资料  [需登录]
+
+# ============================================
+# HOUSES 房屋 — prefix: /houses
+# ============================================
+
+GET     /houses                 # 房源列表（公开搜索，仅 approved） [公开]
+GET     /houses/all             # 全部房源  [admin]
+GET     /houses/my              # 我的房源  [landlord]
+GET     /houses/pending         # 待审核房源  [admin]
+GET     /houses/:id             # 房源详情  [公开]
+POST    /houses                 # 发布新房源  [landlord]
+PUT     /houses/:id             # 编辑房源  [landlord 本人]
+DELETE  /houses/:id             # 软删除房源 (→ offline)  [landlord 本人]
+PUT     /houses/:id/review      # 审核房源  [admin]
+PUT     /houses/:id/status      # 上架/下架  [landlord 本人]
+
+# ============================================
+# APPOINTMENTS 预约 — prefix: /appointments
+# ============================================
+
+GET     /appointments           # 预约列表（角色自适应） [需登录]
+POST    /appointments           # 创建预约  [tenant]
+PUT     /appointments/:id/confirm  # 确认预约  [landlord 本人]
+PUT     /appointments/:id/reject   # 拒绝预约  [landlord 本人]
+PUT     /appointments/:id/cancel   # 取消预约  [tenant 本人]
+
+# ============================================
+# CONTRACTS 合同 — prefix: /contracts
+# ============================================
+
+GET     /contracts              # 合同列表（角色自适应） [需登录]
+GET     /contracts/:id          # 合同详情  [合同双方/admin]
+POST    /contracts              # 创建合同  [landlord]
+PUT     /contracts/:id/sign     # 签署合同  [合同双方]
+PUT     /contracts/:id/terminate # 终止合同  [合同双方]
+
+# ============================================
+# FINANCE 财务 — prefix: /finance
+# ============================================
+
+GET     /finance                # 财务记录列表  [landlord]
+POST    /finance                # 添加财务记录  [landlord]
+
+# ============================================
+# REVIEWS 评价 — prefix: /reviews
+# ============================================
+
+GET     /reviews/house/:houseId # 房源评价（含平均分） [公开]
+GET     /reviews/my             # 我的评价  [tenant]
+POST    /reviews                # 创建评价  [tenant]
+PUT     /reviews/:id/hide       # 切换评价可见性  [admin]
+
+# ============================================
+# ADMIN 管理 — prefix: /admin
+# ============================================
+
+GET     /admin/users            # 用户列表  [admin]
+PUT     /admin/users/:id/status # 启用/禁用用户  [admin]
+GET     /admin/stats            # 统计面板  [admin]
+GET     /admin/settings         # 系统设置  [admin]
+PUT     /admin/settings         # 更新系统设置  [admin]
+
+# ============================================
+# OTHER 其他
+# ============================================
+
+GET     /health                 # 健康检查  [公开]
+
+# ────────────────────────────────────────────
+# 总计: 37 个端点
+# 公开: 6 | 需登录: 7 | tenant: 5 | landlord: 12 | admin: 9
+# ────────────────────────────────────────────
+# 导入说明:
+#   Postman → Import → 选择 tests/postman-collection.json
+#   Collection 内置变量 {{baseUrl}} {{token}} {{houseId}} 等
+#   登录成功后 Tests 脚本自动填充 {{token}}
+#   创建资源的 Tests 自动填充对应的 ID 变量
+# ────────────────────────────────────────────

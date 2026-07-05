@@ -1,0 +1,5 @@
+$kind: http-request
+description: 公开接口。返回 { reviews, averageScore, total }
+url: "{{baseUrl}}/reviews/house/{{houseId}}"
+method: GET
+order: 1000

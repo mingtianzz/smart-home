@@ -1,0 +1,13 @@
+$kind: http-request
+description: 传入任意 key-value 对，逐个 upsert
+url: "{{baseUrl}}/admin/settings"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "houseTypes": ["一室", "两室一厅", "三室一厅", "整租"],
+      "paymentMethods": ["月付", "季付", "半年付", "年付"],
+      "auditEnabled": true
+    }
+order: 5000

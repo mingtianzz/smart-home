@@ -1,0 +1,9 @@
+$kind: http-request
+url: "{{baseUrl}}/houses/all"
+method: GET
+queryParams:
+  - key: status
+    value: ""
+    disabled: true
+    description: "可选: pending/approved/rejected/offline"
+order: 4000

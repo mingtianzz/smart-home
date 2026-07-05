@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "phone": "13900000001",
+      "password": "pass123456",
+      "role": "tenant"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 200) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('token', json.token);
+          console.log('Token: ' + json.token);
+      }
+    language: text/javascript
+order: 2000

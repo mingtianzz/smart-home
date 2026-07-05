@@ -1,0 +1,12 @@
+$kind: http-request
+description: "status: approved | rejected。拒绝时 fill rejectReason。"
+url: "{{baseUrl}}/houses/{{houseId}}/review"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "status": "approved",
+      "rejectReason": ""
+    }
+order: 9000

@@ -1,0 +1,5 @@
+$kind: http-request
+description: tenant → 自己的合同；landlord → 名下房源的合同；admin → 全部
+url: "{{baseUrl}}/contracts"
+method: GET
+order: 1000

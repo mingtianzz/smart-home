@@ -1,0 +1,23 @@
+$kind: collection
+description: 后端全部 37 个端点，按模块分文件夹。导入 Postman 后需创建 Environment 设置 baseUrl 和 token 变量。
+variables:
+  baseUrl: http://localhost:3000/api
+  token: ""
+  houseId: ""
+  appointmentId: ""
+  contractId: ""
+  reviewId: ""
+  userId: ""
+  tenantId: ""
+scripts:
+  - type: http:beforeRequest
+    code: |-
+      // 如需自动刷新 token，可在此处调用 refresh 逻辑
+      // 当前为空 — 手动执行 Login 后 token 自动填充
+    language: text/javascript
+auth:
+  - id: 54f9235c-9aa6-4dfc-bf32-86cc8201ab4e
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

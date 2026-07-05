@@ -1,0 +1,18 @@
+$kind: http-request
+name: PUT 启用/禁用用户
+description: "status: active | disabled"
+url: "{{baseUrl}}/admin/users/{{userId}}/status"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "status": "disabled"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      var json = pm.response.json();
+      pm.collectionVariables.set('userId', json._id);
+    language: text/javascript
+order: 2000

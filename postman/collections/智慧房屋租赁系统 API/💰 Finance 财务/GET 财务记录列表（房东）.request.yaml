@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/finance"
+method: GET
+queryParams:
+  - key: month
+    value: ""
+    disabled: true
+    description: YYYY-MM 格式
+  - key: houseId
+    value: ""
+    disabled: true
+    description: 房源 ID
+order: 1000

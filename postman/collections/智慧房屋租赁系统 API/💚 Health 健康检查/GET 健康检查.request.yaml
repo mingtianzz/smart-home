@@ -1,0 +1,5 @@
+$kind: http-request
+description: "无需认证。返回 { status: 'ok', time: 'ISO' }"
+url: "{{baseUrl}}/health"
+method: GET
+order: 1000

@@ -14,9 +14,9 @@
       </div>
     </div>
 
-    <el-row :gutter="20" class="mb-20">
+    <el-row :gutter="22" class="mb-20">
       <el-col :span="6">
-        <el-card shadow="never">
+        <el-card shadow="never" class="finance-stat-card">
           <div class="stat-item">
             <div class="stat-label">总收入</div>
             <div class="stat-value stat-income">¥{{ totalIncome.toLocaleString() }}</div>
@@ -24,7 +24,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="never">
+        <el-card shadow="never" class="finance-stat-card">
           <div class="stat-item">
             <div class="stat-label">记录数</div>
             <div class="stat-value stat-count">{{ records.length }}</div>
@@ -32,7 +32,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="never">
+        <el-card shadow="never" class="finance-stat-card">
           <div class="stat-item">
             <div class="stat-label">待收租金</div>
             <div class="stat-value stat-pending">¥{{ pendingIncome.toLocaleString() }}</div>
@@ -40,7 +40,7 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="never">
+        <el-card shadow="never" class="finance-stat-card">
           <div class="stat-item">
             <div class="stat-label">已收租金</div>
             <div class="stat-value stat-paid">¥{{ paidIncome.toLocaleString() }}</div>
@@ -181,32 +181,33 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.finance-stat-card {
+  border-radius: 12px;
+  border: 1px solid #eef0f0;
+}
+
 .stat-item {
   text-align: center;
-  padding: 8px;
+  padding: 12px 8px;
 }
+
 .stat-label {
-  font-size: 14px;
-  color: #6b7272;
-  margin-bottom: 8px;
+  font-size: 13px;
+  color: #9ea5a5;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
+
 .stat-value {
   font-size: 24px;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
-.stat-income {
-  color: #d4943a;
-}
-.stat-count {
-  color: #0d7a7a;
-}
-.stat-pending {
-  color: #e8a838;
-}
-.stat-paid {
-  color: #4caf7d;
-}
-.ml-10 {
-  margin-left: 10px;
-}
+
+.stat-income { color: #d4943a; }
+.stat-count { color: #0d7a7a; }
+.stat-pending { color: #e8a838; }
+.stat-paid { color: #4caf7d; }
+
+.ml-10 { margin-left: 10px; }
 </style>

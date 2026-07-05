@@ -1,0 +1,5 @@
+$kind: http-request
+description: 切换 visible 布尔值。每次调用翻转一次。
+url: "{{baseUrl}}/reviews/{{reviewId}}/hide"
+method: PUT
+order: 4000

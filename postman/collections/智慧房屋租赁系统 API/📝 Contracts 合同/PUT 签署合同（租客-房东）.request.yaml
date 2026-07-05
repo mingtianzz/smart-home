@@ -1,0 +1,6 @@
+$kind: http-request
+name: PUT 签署合同（租客/房东）
+description: 租客签 → signedByTenant；房东签 → signedByLandlord；双方签 → status=signed
+url: "{{baseUrl}}/contracts/{{contractId}}/sign"
+method: PUT
+order: 4000

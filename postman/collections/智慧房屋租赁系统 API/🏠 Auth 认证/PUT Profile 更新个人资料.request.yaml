@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/profile"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "name": "新名字",
+      "phone": "13900000001"
+    }
+order: 6000

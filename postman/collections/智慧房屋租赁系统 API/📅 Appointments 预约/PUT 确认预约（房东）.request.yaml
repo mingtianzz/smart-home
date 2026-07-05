@@ -1,0 +1,5 @@
+$kind: http-request
+description: 仅 pending → confirmed，需房东本人
+url: "{{baseUrl}}/appointments/{{appointmentId}}/confirm"
+method: PUT
+order: 3000

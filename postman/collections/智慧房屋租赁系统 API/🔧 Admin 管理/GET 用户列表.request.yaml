@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/admin/users"
+method: GET
+queryParams:
+  - key: search
+    value: ""
+    disabled: true
+    description: 模糊搜索姓名/手机号
+  - key: role
+    value: ""
+    disabled: true
+    description: tenant | landlord | admin
+order: 1000

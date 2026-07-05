@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h3>系统设置</h3>
+    <h3 class="page-heading">系统设置</h3>
 
-    <el-card shadow="never" class="settings-card" style="margin-top:20px">
+    <el-card shadow="never" class="settings-card" style="margin-top:24px">
       <el-form label-width="140px" v-loading="loading">
         <el-form-item label="房屋类型">
           <el-select v-model="settings.houseTypes" multiple filterable allow-create default-first-option style="width:400px" placeholder="输入后回车添加">
@@ -100,18 +100,32 @@ onMounted(loadSettings)
 </script>
 
 <style scoped>
+.page-heading {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1d1d;
+}
+
 .settings-card {
   max-width: 680px;
+  border-radius: 12px;
+  border: 1px solid #eef0f0;
 }
+
+.settings-card :deep(.el-card__body) {
+  padding: 28px 32px;
+}
+
 .form-item-tip {
   font-size: 12px;
-  color: #6b7272;
+  color: #9ea5a5;
   margin-top: 4px;
   line-height: 1.4;
 }
+
 .last-updated {
   margin-left: 16px;
   font-size: 13px;
-  color: #6b7272;
+  color: #9ea5a5;
 }
 </style>

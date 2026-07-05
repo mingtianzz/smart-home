@@ -1,0 +1,5 @@
+$kind: http-request
+description: 不真删除，status → offline
+url: "{{baseUrl}}/houses/{{houseId}}"
+method: DELETE
+order: 10000

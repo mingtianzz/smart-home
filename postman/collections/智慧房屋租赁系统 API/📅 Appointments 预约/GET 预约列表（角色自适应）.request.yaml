@@ -1,0 +1,10 @@
+$kind: http-request
+description: tenant → 自己的预约；landlord → 名下房源的预约；admin → 全部
+url: "{{baseUrl}}/appointments"
+method: GET
+queryParams:
+  - key: status
+    value: ""
+    disabled: true
+    description: "可选: pending/confirmed/rejected/cancelled"
+order: 1000

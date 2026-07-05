@@ -1,0 +1,22 @@
+$kind: http-request
+description: 公开接口。注册成功自动保存 token 到 Collection 变量。
+url: "{{baseUrl}}/auth/register"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "phone": "13900000001",
+      "password": "pass123456",
+      "name": "张三",
+      "role": "tenant"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('token', json.token);
+      }
+    language: text/javascript
+order: 1000

@@ -1,0 +1,5 @@
+$kind: http-request
+description: 公开接口。需先在 URL 中替换 {{houseId}} 为实际 ID。
+url: "{{baseUrl}}/houses/{{houseId}}"
+method: GET
+order: 2000

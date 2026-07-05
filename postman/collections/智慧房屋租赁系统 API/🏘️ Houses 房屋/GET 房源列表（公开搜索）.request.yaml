@@ -1,0 +1,32 @@
+$kind: http-request
+description: 公开接口，仅返回 status=approved 的房源。
+url: "{{baseUrl}}/houses?page=1&limit=12"
+method: GET
+queryParams:
+  - key: area
+    value: ""
+    disabled: true
+    description: 区域模糊匹配
+  - key: minRent
+    value: ""
+    disabled: true
+    description: 最低租金
+  - key: maxRent
+    value: ""
+    disabled: true
+    description: 最高租金
+  - key: type
+    value: ""
+    disabled: true
+    description: 房屋类型
+  - key: keyword
+    value: ""
+    disabled: true
+    description: 标题/地址搜索
+  - key: page
+    value: "1"
+    description: 页码
+  - key: limit
+    value: "12"
+    description: 每页条数(≤100)
+order: 1000

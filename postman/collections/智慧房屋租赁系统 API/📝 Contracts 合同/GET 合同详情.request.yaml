@@ -1,0 +1,5 @@
+$kind: http-request
+description: 需合同双方或 admin
+url: "{{baseUrl}}/contracts/{{contractId}}"
+method: GET
+order: 2000

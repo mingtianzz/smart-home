@@ -1,0 +1,24 @@
+$kind: http-request
+description: 所有字段必填。房源必须属于当前房东。
+url: "{{baseUrl}}/contracts"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "tenantId": "{{tenantId}}",
+      "houseId": "{{houseId}}",
+      "startDate": "2026-08-01",
+      "endDate": "2027-07-31",
+      "rent": 3500,
+      "deposit": 3500
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('contractId', json._id);
+      }
+    language: text/javascript
+order: 3000

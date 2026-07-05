@@ -1,41 +1,45 @@
-/* ========== Design System: 智慧房屋租赁系统 ========== */
-/* Primary: Professional Teal #0d7a7a / oklch(0.48 0.11 195) */
-/* Accent:  Warm Amber       #d4943a / oklch(0.62 0.13 70)   */
+/* ============================================================
+   Design System — 智慧房屋租赁系统 · 华丽升级版
+   Primary:  Teal     #0d7a7a  →  oklch(0.48 0.11 195)
+   Accent:   Gold     #c8943a  →  oklch(0.70 0.14 80)
+   Rose:     #c56a62
+   Surface:  warm off-white
+   ============================================================ */
 
 /* --- Element Plus Theme Overrides --- */
 :root {
   --el-color-primary: #0d7a7a;
-  --el-color-primary-light-3: #36a3a3;
-  --el-color-primary-light-5: #6bbdbd;
-  --el-color-primary-light-7: #a8d8d8;
-  --el-color-primary-light-8: #c5e8e8;
-  --el-color-primary-light-9: #e2f3f3;
-  --el-color-primary-dark-2: #085c5c;
+  --el-color-primary-light-3: #2e9e9e;
+  --el-color-primary-light-5: #5ab8b8;
+  --el-color-primary-light-7: #93d3d3;
+  --el-color-primary-light-8: #b6e4e4;
+  --el-color-primary-light-9: #d9f2f2;
+  --el-color-primary-dark-2: #096060;
 
   --el-color-success: #4caf7d;
-  --el-color-warning: #e8a838;
-  --el-color-danger: #d9605a;
+  --el-color-warning: #c8943a;
+  --el-color-danger: #c56a62;
   --el-color-info: #5a8f9f;
 
-  --el-text-color-primary: #1a1d1d;
-  --el-text-color-regular: #1a1d1d;
+  --el-text-color-primary: #1a1c1c;
+  --el-text-color-regular: #2c3030;
   --el-text-color-secondary: #6b7272;
-  --el-text-color-placeholder: #6b7272;
+  --el-text-color-placeholder: #9ca3a3;
 
   --el-border-color: #e2e6e6;
   --el-border-color-light: #e8ebeb;
   --el-border-color-lighter: #eef0f0;
   --el-border-color-extra-light: #f3f5f5;
 
-  --el-bg-color: #f7f9f9;
+  --el-bg-color: #f7f8f8;
   --el-bg-color-overlay: #ffffff;
-  --el-fill-color: #f7f9f9;
-  --el-fill-color-light: #fafafa;
-  --el-fill-color-lighter: #fafafa;
+  --el-fill-color: #f7f8f8;
+  --el-fill-color-light: #fafbfb;
+  --el-fill-color-lighter: #fcfcfc;
 
-  --el-border-radius-base: 4px;
-  --el-border-radius-small: 4px;
-  --el-border-radius-round: 8px;
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 5px;
+  --el-border-radius-round: 12px;
 
   --el-font-size-extra-large: 20px;
   --el-font-size-large: 18px;
@@ -45,9 +49,33 @@
   --el-font-size-extra-small: 12px;
 
   --el-font-weight-primary: 500;
+
+  /* ── Custom design tokens ── */
+  --app-bg: #f7f8f8;
+  --app-surface: #ffffff;
+  --app-text: #1a1c1c;
+  --app-text-secondary: #5c6363;
+  --app-text-muted: #9ca3a3;
+  --app-border: #e4e8e8;
+  --app-border-light: #eff1f1;
+
+  --app-radius-sm: 8px;
+  --app-radius-md: 12px;
+  --app-radius-lg: 16px;
+  --app-radius-xl: 20px;
+
+  --app-shadow-xs: 0 1px 2px rgba(13, 122, 122, 0.04);
+  --app-shadow-sm: 0 2px 8px rgba(13, 122, 122, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --app-shadow-md: 0 6px 20px rgba(13, 122, 122, 0.07), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --app-shadow-lg: 0 12px 32px rgba(13, 122, 122, 0.09), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --app-shadow-glow: 0 0 0 4px rgba(13, 122, 122, 0.08), 0 8px 24px rgba(13, 122, 122, 0.10);
+
+  --app-transition-fast: 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  --app-transition: 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  --app-transition-slow: 400ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* --- Global Reset & Base --- */
+/* --- Reset & Base --- */
 * {
   margin: 0;
   padding: 0;
@@ -56,11 +84,13 @@
 
 html, body {
   height: 100%;
-  font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #f7f9f9;
-  color: #1a1d1d;
+  font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--app-bg);
+  color: var(--app-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
 }
 
 #app {
@@ -72,13 +102,29 @@ html, body {
 a {
   text-decoration: none;
   color: inherit;
+  transition: color var(--app-transition-fast);
 }
 
-/* --- Utility Classes --- */
+/* ── Luxurious Background Texture ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    /* 主渐变光晕 */
+    radial-gradient(ellipse 90% 50% at 10% 0%,   rgba(13, 122, 122, 0.035), transparent 60%),
+    radial-gradient(ellipse 70% 40% at 90% 20%,  rgba(200, 148, 58, 0.025),  transparent 55%),
+    radial-gradient(ellipse 60% 50% at 50% 100%,  rgba(13, 122, 122, 0.025), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 85% 80%,  rgba(200, 148, 58, 0.018),  transparent 50%);
+}
+
+/* ── Page Container ── */
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 32px 24px;
   flex: 1;
   width: 100%;
 }
@@ -87,43 +133,53 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
-.card-header h2 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1d1d;
+.card-header h2,
+.card-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--app-text);
+  letter-spacing: -0.015em;
+  position: relative;
 }
 
-.text-center {
-  text-align: center;
+/* decorative underline for page headings */
+.card-header h2::after,
+.card-header h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0d7a7a, #c8943a);
 }
 
-.mt-20 {
-  margin-top: 20px;
-}
+.text-center { text-align: center; }
+.mt-20 { margin-top: 28px; }
+.mb-20 { margin-bottom: 28px; }
 
-.mb-20 {
-  margin-bottom: 20px;
-}
-
-/* --- House Grid --- */
+/* ── House Grid ── */
 .house-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(286px, 1fr));
+  gap: 24px;
+  margin-top: 28px;
 }
 
-/* --- Search Card --- */
+/* ── Search Card ── */
 .search-card {
-  border-radius: 8px;
-  margin-bottom: 20px;
+  border-radius: var(--app-radius-lg);
+  border: 1px solid var(--app-border-light);
+  box-shadow: var(--app-shadow-sm);
+  background: linear-gradient(135deg, #ffffff, #fafcfc);
 }
 
 .search-card .el-card__body {
-  padding: 20px 24px;
+  padding: 24px 32px;
 }
 
 .search-form {
@@ -138,134 +194,239 @@ a {
   margin-right: 16px;
 }
 
-/* --- Form Wrapper (Login/Register) --- */
+/* ── Form Wrapper ── */
 .form-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 180px);
+  padding: 40px 0;
 }
 
 .form-card {
-  width: 420px;
-  padding: 32px;
-  border-radius: 12px;
+  width: 440px;
+  padding: 40px 44px;
+  border-radius: var(--app-radius-xl);
+  border: 1px solid var(--app-border-light);
+  box-shadow: var(--app-shadow-md);
+  background: linear-gradient(135deg, #ffffff 0%, #fafcfc 100%);
 }
 
 .form-title {
   text-align: center;
-  margin-bottom: 28px;
-  font-size: 24px;
-  font-weight: 600;
-  color: #1a1d1d;
+  margin-bottom: 36px;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--app-text);
+  letter-spacing: -0.02em;
 }
 
 .form-footer {
   text-align: center;
   font-size: 14px;
-  color: #6b7272;
-  margin-top: 16px;
+  color: var(--app-text-secondary);
+  margin-top: 24px;
 }
 
 .form-footer a {
-  color: #0d7a7a;
-  font-weight: 500;
+  color: var(--el-color-primary);
+  font-weight: 600;
 }
 
-/* --- Sidebar Layout (Admin/Landlord) --- */
+.form-footer a:hover {
+  color: var(--el-color-primary-dark-2);
+}
+
+/* ── Sidebar Layout ── */
 .sidebar-layout {
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .sidebar-layout .el-menu--horizontal {
-  margin-bottom: 24px;
-  border-bottom: 1px solid #e2e6e6;
-  background: #fff;
-  border-radius: 8px;
-  padding: 0 8px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--app-border-light);
+  background: var(--app-surface);
+  border-radius: var(--app-radius-md);
+  padding: 0 16px;
+  box-shadow: var(--app-shadow-sm);
 }
 
 .sidebar-layout .el-menu--horizontal .el-menu-item {
-  height: 52px;
-  line-height: 52px;
-  font-size: 14px;
-  color: #6b7272;
-  border-bottom: 2px solid transparent;
-  margin: 0 4px;
-}
-
-.sidebar-layout .el-menu--horizontal .el-menu-item.is-active {
-  color: #0d7a7a;
-  border-bottom-color: #0d7a7a;
+  height: 56px;
+  line-height: 56px;
+  font-size: 15px;
+  color: var(--app-text-secondary);
+  border-bottom: 3px solid transparent;
+  margin: 0 8px;
+  transition: all var(--app-transition);
+  border-radius: var(--app-radius-sm) var(--app-radius-sm) 0 0;
   font-weight: 500;
 }
 
+.sidebar-layout .el-menu--horizontal .el-menu-item.is-active {
+  color: var(--el-color-primary);
+  border-bottom-color: var(--el-color-primary);
+  font-weight: 700;
+  background: var(--el-color-primary-light-9);
+}
+
 .sidebar-layout .el-menu--horizontal .el-menu-item:hover {
-  color: #0d7a7a;
-  background: transparent;
+  color: var(--el-color-primary);
+  background: rgba(13, 122, 122, 0.05);
 }
 
 .content-area {
   min-height: 400px;
 }
 
-/* --- Status Tags --- */
+/* ── Status Tags ── */
 .status-tag {
-  border: none;
+  border: none !important;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 5px !important;
 }
 
-/* --- Table improvements --- */
+/* ── Table ── */
 .el-table {
-  --el-table-border-color: #e8ebeb;
-  --el-table-header-bg-color: #f7f9f9;
-  --el-table-row-hover-bg-color: #e2f3f3;
+  --el-table-border-color: var(--app-border-light);
+  --el-table-header-bg-color: #f9fbfb;
+  --el-table-row-hover-bg-color: rgba(13, 122, 122, 0.03);
+  border-radius: var(--app-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--app-border-light);
+  box-shadow: var(--app-shadow-xs);
 }
 
 .el-table th.el-table__cell {
   font-weight: 600;
-  color: #1a1d1d;
-}
-
-/* --- Card improvements --- */
-.el-card {
-  border: 1px solid #e2e6e6;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.el-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-}
-
-/* --- Button refinements --- */
-.el-button--primary {
-  --el-button-bg-color: #0d7a7a;
-  --el-button-border-color: #0d7a7a;
-  --el-button-hover-bg-color: #0b6b6b;
-  --el-button-hover-border-color: #0b6b6b;
-  --el-button-active-bg-color: #085c5c;
-  --el-button-active-border-color: #085c5c;
-}
-
-/* --- Input focus --- */
-.el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 2px rgba(13,122,122,0.2) !important;
-}
-
-/* --- Misc Utilities --- */
-.muted-text {
-  color: #6b7272;
+  color: var(--app-text);
   font-size: 13px;
+  letter-spacing: 0.03em;
+  background: linear-gradient(180deg, #f9fbfb, #f5f7f7);
 }
 
-.price-text {
-  color: #1a1d1d;
-  font-weight: 600;
+.el-table .el-table__row {
+  transition: background-color var(--app-transition);
 }
 
-/* --- Pagination --- */
+/* ── Card ── */
+.el-card {
+  border: 1px solid var(--app-border-light);
+  transition: box-shadow var(--app-transition), transform var(--app-transition), border-color var(--app-transition);
+}
+
+.el-card:not(.is-always-shadow):hover {
+  box-shadow: var(--app-shadow-md);
+}
+
+/* ── Button ── */
+.el-button {
+  transition: all var(--app-transition);
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+.el-button:active {
+  transform: scale(0.955);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--el-color-primary);
+  --el-button-border-color: var(--el-color-primary);
+  --el-button-hover-bg-color: #096060;
+  --el-button-hover-border-color: #096060;
+  --el-button-active-bg-color: #075454;
+  --el-button-active-border-color: #075454;
+  background: linear-gradient(135deg, #0d7a7a, #0b6e6e);
+  border: none;
+  box-shadow: 0 2px 8px rgba(13, 122, 122, 0.25);
+}
+
+.el-button--primary:hover {
+  background: linear-gradient(135deg, #0f8a8a, #0d7a7a);
+  box-shadow: 0 4px 14px rgba(13, 122, 122, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ── Input ── */
+.el-input__wrapper {
+  transition: box-shadow var(--app-transition), border-color var(--app-transition);
+  border-radius: var(--app-radius-sm);
+}
+
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px rgba(13, 122, 122, 0.15);
+}
+
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 3px rgba(13, 122, 122, 0.12) !important;
+}
+
+/* ── Select ── */
+.el-select .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 3px rgba(13, 122, 122, 0.12) !important;
+}
+
+/* ── Dialog ── */
+.el-dialog {
+  border-radius: var(--app-radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Tag ── */
+.el-tag {
+  border: none;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ── Pagination ── */
 .el-pagination {
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 32px;
+}
+
+/* ── Page Entry Animation ── */
+.main-content > div {
+  animation: page-enter 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(13, 122, 122, 0.18);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 122, 122, 0.30);
+}
+
+/* ── Selection ── */
+::selection {
+  background: rgba(13, 122, 122, 0.15);
+  color: var(--app-text);
+}
+
+/* ── Utilities ── */
+.muted-text  { color: var(--app-text-secondary); font-size: 13px; }
+.price-text  { color: var(--app-text); font-weight: 700; }
+.divider-accent {
+  width: 48px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0d7a7a, #c8943a);
+  margin: 16px 0;
 }

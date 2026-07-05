@@ -1,0 +1,5 @@
+$kind: http-request
+description: 仅 pending → cancelled，需租客本人
+url: "{{baseUrl}}/appointments/{{appointmentId}}/cancel"
+method: PUT
+order: 5000

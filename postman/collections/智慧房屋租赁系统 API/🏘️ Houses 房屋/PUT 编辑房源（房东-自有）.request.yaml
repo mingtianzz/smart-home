@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/houses/{{houseId}}"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "title": "已降价-精装修两室一厅",
+      "rent": 3200
+    }
+order: 7000

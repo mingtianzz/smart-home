@@ -1,0 +1,14 @@
+$kind: http-request
+description: 所有字段必填
+url: "{{baseUrl}}/finance"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "houseId": "{{houseId}}",
+      "contractId": "{{contractId}}",
+      "amount": 3500,
+      "month": "2026-08"
+    }
+order: 2000

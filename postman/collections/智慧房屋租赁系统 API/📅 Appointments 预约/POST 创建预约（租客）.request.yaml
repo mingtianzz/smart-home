@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/appointments"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "houseId": "{{houseId}}",
+      "visitDate": "2026-07-10",
+      "visitTime": "14:00",
+      "contact": "13800000000",
+      "remark": "下班后看房"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          var json = pm.response.json();
+          pm.collectionVariables.set('appointmentId', json._id);
+      }
+    language: text/javascript
+order: 2000
