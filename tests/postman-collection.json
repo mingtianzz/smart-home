@@ -1,9 +1,8 @@
 {
   "info": {
-    "name": "智慧房屋租赁系统 API",
-    "description": "后端全部 37 个端点，按模块分文件夹。导入 Postman 后需创建 Environment 设置 baseUrl 和 token 变量。",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "manual"
+    "name": "智慧房屋租赁系统 API (含测试用例)",
+    "description": "后端全部 37 个端点 + Auth 模块 54 个等价类测试用例。\n\n结构:\n  🏠 Auth 认证\n    ├── 📋 Register 等价类测试 (28用例)\n    ├── 📋 Login 等价类测试 (15用例)\n    ├── 📋 Me 等价类测试 (5用例)\n    ├── 📋 Profile 等价类测试 (6用例)\n    └── ⚡ 快捷请求 (6个)\n  🏘️ Houses 房屋 (10端点)\n  📅 Appointments 预约 (5端点)\n  📝 Contracts 合同 (5端点)\n  💰 Finance 财务 (2端点)\n  ⭐ Reviews 评价 (4端点)\n  🔧 Admin 管理 (5端点)\n  💚 Health (1端点)\n\n使用: 导入后先创建 Environment 设置 baseUrl=http://localhost:3000/api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
@@ -15,13 +14,12 @@
       "key": "token",
       "value": "",
       "type": "string",
-      "description": "登录后自动填充（Tests 脚本），也可手动粘贴"
+      "description": "登录后自动填充"
     },
     {
       "key": "houseId",
       "value": "",
-      "type": "string",
-      "description": "创建房源后从响应中提取"
+      "type": "string"
     },
     {
       "key": "appointmentId",
@@ -59,24 +57,1786 @@
       }
     ]
   },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// 如需自动刷新 token，可在此处调用 refresh 逻辑",
-          "// 当前为空 — 手动执行 Login 后 token 自动填充"
-        ]
-      }
-    }
-  ],
   "item": [
     {
       "name": "🏠 Auth 认证",
       "item": [
         {
-          "name": "POST Register 注册",
+          "name": "📋 Register 等价类测试 (38用例)",
+          "item": [
+            {
+              "name": "REG-001 正向 — 完整字段",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "全部字段有效，phone + email 双填，角色 tenant\n\n预期: 201 — 注册成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"email\": \"user001@test.com\",\n  \"password\": \"pass123456\",\n  \"name\": \"张三\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-002 正向 — 仅 phone",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "仅 phone（无 email），角色 landlord\n\n预期: 201 — 注册成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"pass123456\",\n  \"name\": \"李四\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-003 正向 — 仅 email",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "仅 email（无 phone），角色 tenant\n\n预期: 201 — 注册成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user003@test.com\",\n  \"password\": \"pass123456\",\n  \"name\": \"王五\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-004 正向 — phone 空字符串 + email 有效",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "phone 传 ''，email 有效 — phone 应转为 undefined (不存空串)\n\n预期: 201 — 注册成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"\",\n  \"email\": \"user004@test.com\",\n  \"password\": \"pass123456\",\n  \"name\": \"赵六\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-005 正向 — email 空字符串 + phone 有效",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "email 传 ''，phone 有效\n\n预期: 201 — 注册成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000003\",\n  \"email\": \"\",\n  \"password\": \"pass123456\",\n  \"name\": \"孙七\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-006 正向 — 密码边界（6 字符）",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "密码恰好 6 字符，验证最短密码可通过\n\n📝 后端无密码长度校验，6 字符可通过。若前端有 ≥6 的校验则此为边界值。\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000004\",\n  \"email\": \"user006@test.com\",\n  \"password\": \"123456\",\n  \"name\": \"周六\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-010 负向 — password 缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "password 字段完全缺失\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000010\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-011 负向 — password 为 null",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "password 传 null\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000011\",\n  \"password\": null,\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-012 负向 — password 为空字符串",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "password 传 ''\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000012\",\n  \"password\": \"\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-013 负向 — name 缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "name 字段完全缺失\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000013\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-014 负向 — name 为 null",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "name 传 null\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000014\",\n  \"password\": \"pass123456\",\n  \"name\": null,\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-015 负向 — name 为空字符串",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "name 传 ''\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000015\",\n  \"password\": \"pass123456\",\n  \"name\": \"\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-016 负向 — role 缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 字段完全缺失\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000016\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-017 负向 — role 为 null",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传 null\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000017\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-018 负向 — role 为空字符串",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传 '' — 先被 !role 捕获，返回 '请填写必填字段' 而非 '角色无效'\n\n🔍 空字符串被 !role 拦截（falsy），不会到达角色枚举检查\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000018\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-019 负向 — role = admin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传 'admin' — 不在允许列表中\n\n预期: 400 — 角色无效",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000019\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"admin\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-020 负向 — role = guest（任意非法值）",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传不在枚举中的任意值 'guest'\n\n预期: 400 — 角色无效",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000020\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"guest\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-021 负向 — role 大小写变体",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传 'Tenant' (首字母大写) — 精确匹配，不在枚举中\n\n📝 大小写敏感校验\n\n预期: 400 — 角色无效",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000021\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"Tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-022 负向 — role = LANDLORD（全大写）",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传 'LANDLORD' — 精确匹配，不在枚举中\n\n预期: 400 — 角色无效",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000022\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"LANDLORD\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-030 负向 — phone 和 email 均缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "两个联系方式都不传\n\n预期: 400 — 手机号和邮箱至少填一个",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-031 负向 — phone null + email null",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "phone 和 email 都传 null\n\n预期: 400 — 手机号和邮箱至少填一个",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": null,\n  \"email\": null,\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-032 负向 — phone '' + email ''",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "phone 和 email 都传空字符串\n\n预期: 400 — 手机号和邮箱至少填一个",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"\",\n  \"email\": \"\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-033 负向 — phone undefined + email ''",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "phone 不传 + email 空串\n\n预期: 400 — 手机号和邮箱至少填一个",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-040 负向 — phone 重复",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "使用已注册用户的 phone（不传 email），预期返回重复错误\n\n预期: 400 — 该账号已被注册\n\n⚠️ 前置: 需先在数据库中存在 phone=13800000001 的用户（见 preconditions）",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13800000001\",\n  \"password\": \"pass123456\",\n  \"name\": \"新用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-041 负向 — email 重复",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "使用已注册用户的 email（不传 phone），预期返回重复错误\n\n预期: 400 — 该账号已被注册\n\n⚠️ 前置: 需先在数据库中存在 email=existing@test.com 的用户（见 preconditions）",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"existing@test.com\",\n  \"password\": \"pass123456\",\n  \"name\": \"新用户\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-042 负向 — phone 重复 + email 新",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "phone 重复但 email 是新的 — phone 先检查，命中重复\n\n🔍 phone 先于 email 检查重复，phone 命中即返回\n\n预期: 400 — 该账号已被注册\n\n⚠️ 前置: phone=13800000001 已存在",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13800000001\",\n  \"email\": \"newemail@test.com\",\n  \"password\": \"pass123456\",\n  \"name\": \"新用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-043 负向 — email 重复 + phone 新",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "email 重复但 phone 是新的 — phone 未命中，继续查 email，命中重复\n\n预期: 400 — 该账号已被注册\n\n⚠️ 前置: email=existing@test.com 已存在",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13999999999\",\n  \"email\": \"existing@test.com\",\n  \"password\": \"pass123456\",\n  \"name\": \"新用户\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-050 负向 — 密码短于 6 字符",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "密码仅 3 字符 'abc' — 后端无长度校验，实际返回 201；前端应拦截\n\n📝 ⚠️ 后端无密码长度校验，3 字符密码可通过。建议在 User 模型或路由层增加 minlength 校验。\n\n预期: 201 — 注册成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000050\",\n  \"password\": \"abc\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-051 负向 — 密码为 1 字符",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "密码仅 1 字符 'a'\n\n📝 ⚠️ 后端无密码长度校验。这是一个安全缺陷，建议至少要求 6 字符。\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000051\",\n  \"password\": \"a\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-060 负向 — 组合：name 缺失 + role 也缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "多个必填字段同时缺失 — 仅返回第一条错误\n\n🔍 password 第一个被检查 (!password)，命中后立即返回\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000060\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-061 负向 — 组合：role 无效 + phone/email 均无",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "role 传 'admin' 且无联系方式 — role 检查先触发\n\n🔍 role 枚举检查 (第 2 步) 在 phone/email 检查 (第 3 步) 之前触发\n\n预期: 400 — 角色无效",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"admin\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-062 负向 — 组合：必填字段都通过，但 phone+email 都无",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "password/name/role 都 OK，但未提供联系方式\n\n预期: 400 — 手机号和邮箱至少填一个",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-070 边界 — name 含特殊字符",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "name 包含中文、数字、特殊符号混合\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000070\",\n  \"password\": \"pass123456\",\n  \"name\": \"张三·von O'Conner 第3世\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-071 边界 — name 极长（100 字符）",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "name 长度为 100 个中文字符\n\n📝 Mongoose schema 无 maxlength 限制，超长 name 可通过。建议加限制。\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000071\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名测试用户名\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-072 边界 — phone 格式异常",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "phone 传非数字字符串 'not-a-phone'\n\n📝 ⚠️ 后端无手机号格式校验，任意字符串可作为 phone。建议加格式校验。\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"not-a-phone\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-073 边界 — email 格式异常",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "email 传明显非法格式 'not-an-email'\n\n📝 ⚠️ 后端无邮箱格式校验，任意字符串可作为 email。建议加格式校验。\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-074 边界 — 多余字段",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "请求体包含未定义的额外字段，验证是否被忽略（无副作用）\n\n📝 使用解构赋值 { phone, email, password, name, role }，多余字段自动忽略。\n\n预期: 201 — ",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000074\",\n  \"password\": \"pass123456\",\n  \"name\": \"测试用户\",\n  \"role\": \"tenant\",\n  \"extraField\": \"should-be-ignored\",\n  \"hacked\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "REG-075 边界 — Content-Type 非 JSON",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "发送 text/plain 而非 application/json — Express.json() 中间件行为\n\n📝 Express 未注册 urlencoded 解析器时，req.body 为空对象 → !password 触发 '请填写必填字段'\n\n预期: 400 — ",
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "phone",
+                      "value": "13900000075",
+                      "type": "text"
+                    },
+                    {
+                      "key": "password",
+                      "value": "pass123",
+                      "type": "text"
+                    },
+                    {
+                      "key": "name",
+                      "value": "test",
+                      "type": "text"
+                    },
+                    {
+                      "key": "role",
+                      "value": "tenant",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "POST /api/auth/register 全覆盖等价类测试\n覆盖字段: phone(5) × email(4) × role(6) × password(4) × name(3) = 23 等价类"
+        },
+        {
+          "name": "📋 Login 等价类测试 (15用例)",
+          "item": [
+            {
+              "name": "LOGIN-001 正向·phone登录·tenant",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "使用 phone 登录，角色 tenant\n\n预期: 200 — 登录成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-002 正向·email登录·landlord",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "使用 email 登录，角色 landlord\n\n预期: 200 — 登录成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"landlord@test.com\",\n  \"password\": \"pass123456\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-003 正向·phone登录·admin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "管理员登录 - 种子用户 13800000000/admin123\n\n预期: 200 — 登录成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13800000000\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-010 负向·password缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "password 字段完全缺失\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-011 负向·password空串",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "password 为空字符串\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-012 负向·role缺失",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "role 字段完全缺失\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-013 负向·role空串",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "role 为空字符串\n\n预期: 400 — 请填写必填字段",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"role\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-020 负向·密码错误",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "正确 phone，错误 password\n\n预期: 401 — 账号或密码错误",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"wrongpassword\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-021 负向·用户不存在",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "不存在的 phone 号\n\n预期: 401 — 账号或密码错误",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"19999999999\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-022 负向·phone+email均空",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "phone 和 email 都不传，查不到用户\n\n预期: 401 — 账号或密码错误",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-030 负向·角色不匹配(tenant→landlord)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "tenant 用户选 landlord 角色\n\n预期: 401 — 角色选择错误",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"role\": \"landlord\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-031 负向·角色不匹配(landlord→tenant)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "landlord 用户选 tenant 角色\n\n预期: 401 — 角色选择错误",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-040 负向·账号被禁用",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "被禁用的用户登录 → 403\n\n预期: 403 — 账号已被禁用\n\n⚠️ 前置: 需先用 admin 将该用户 status → disabled",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13800000099\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-050 边界·phone+email同时传",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "phone 和 email 同时传，phone 先查询命中\n\n📝 phone 先于 email 查询\n\n预期: 200 — 登录成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"email\": \"other@test.com\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "LOGIN-051 边界·多余未知字段",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "请求体含未定义字段，应被忽略\n\n预期: 200 — 登录成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\",\n  \"hacked\": true,\n  \"injected\": \"malicious\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "POST /api/auth/login 全覆盖等价类测试\n覆盖: 凭据正确/错误/禁用 + 角色匹配/不匹配 + Token状态"
+        },
+        {
+          "name": "📋 Me 等价类测试 (5用例)",
+          "item": [
+            {
+              "name": "ME-001 正向·正常获取",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "有效 token 获取当前用户信息\n\n预期: 200 — "
+              },
+              "response": []
+            },
+            {
+              "name": "ME-002 负向·无Token",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "不传 Authorization header\n\n📝 Postman 中需在 Authorization 标签选 No Auth 覆盖 Collection 默认 Bearer\n\n预期: 401 — 请先登录"
+              },
+              "response": []
+            },
+            {
+              "name": "ME-003 负向·Token格式错误",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "Authorization 缺少 Bearer 前缀\n\n📝 Header: Authorization: some-random-token\n\n预期: 401 — 请先登录"
+              },
+              "response": []
+            },
+            {
+              "name": "ME-004 负向·Token伪造",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "随机字符串作为 token\n\n预期: 401 — 登录已过期，请重新登录"
+              },
+              "response": []
+            },
+            {
+              "name": "ME-005 负向·用户被删除",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "token 有效但 DB 中用户已删除\n\n预期: 401 — 用户不存在\n\n⚠️ 前置: 需先手动从 DB 中删除对应用户"
+              },
+              "response": []
+            }
+          ],
+          "description": "GET /api/auth/me 全覆盖等价类测试\n覆盖: Token有效/过期/缺失/伪造 + 用户存在/禁用/删除"
+        },
+        {
+          "name": "📋 Profile 等价类测试 (6用例)",
+          "item": [
+            {
+              "name": "PROF-001 正向·更新name",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "profile"
+                  ]
+                },
+                "description": "仅更新 name 字段\n\n预期: 200 — 更新成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"新名字\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PROF-002 正向·更新phone",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "profile"
+                  ]
+                },
+                "description": "仅更新 phone 字段\n\n预期: 200 — 更新成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"13999999999\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PROF-003 正向·更新email",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "profile"
+                  ]
+                },
+                "description": "仅更新 email 字段\n\n预期: 200 — 更新成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"newemail@test.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PROF-004 正向·多字段同时更新",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "profile"
+                  ]
+                },
+                "description": "同时更新 name + phone + email\n\n预期: 200 — 更新成功",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"新名字\",\n  \"phone\": \"13988888888\",\n  \"email\": \"multi@test.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PROF-005 边界·空对象",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "profile"
+                  ]
+                },
+                "description": "请求体为 {}\n\n📝 updates 为空对象，findByIdAndUpdate 无变化\n\n预期: 200 — 更新成功"
+              },
+              "response": []
+            },
+            {
+              "name": "PROF-006 负向·未登录",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "profile"
+                  ]
+                },
+                "description": "不传 token\n\n📝 Postman 中需在 Authorization 标签选 No Auth\n\n预期: 401 — 请先登录"
+              },
+              "response": []
+            }
+          ],
+          "description": "PUT /api/auth/profile 全覆盖等价类测试\n覆盖: 部分更新/全字段/空对象/未登录"
+        },
+        {
+          "name": "⚡ Register 快捷注册",
           "event": [
             {
               "listen": "test",
@@ -85,7 +1845,7 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('token', json.token);",
+                  "    pm.collectionVariables.set(\"token\", json.token);",
                   "}"
                 ]
               }
@@ -97,19 +1857,28 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"name\": \"张三\",\n  \"role\": \"tenant\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             },
-            "description": "公开接口。注册成功自动保存 token 到 Collection 变量。"
+            "description": "公开接口。注册成功自动保存 token。"
           },
           "response": []
         },
         {
-          "name": "POST Login 登录 (tenant)",
+          "name": "⚡ Login (tenant)",
           "event": [
             {
               "listen": "test",
@@ -118,8 +1887,8 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('token', json.token);",
-                  "    console.log('Token: ' + json.token);",
+                  "    pm.collectionVariables.set(\"token\", json.token);",
+                  "    console.log(\"Token: \" + json.token);",
                   "}"
                 ]
               }
@@ -131,18 +1900,27 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"pass123456\",\n  \"role\": \"tenant\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
         },
         {
-          "name": "POST Login 登录 (landlord)",
+          "name": "⚡ Login (landlord)",
           "event": [
             {
               "listen": "test",
@@ -151,7 +1929,7 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('token', json.token);",
+                  "    pm.collectionVariables.set(\"token\", json.token);",
                   "}"
                 ]
               }
@@ -163,18 +1941,27 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"pass123456\",\n  \"role\": \"landlord\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
         },
         {
-          "name": "POST Login 登录 (admin)",
+          "name": "⚡ Login (admin)",
           "event": [
             {
               "listen": "test",
@@ -183,7 +1970,7 @@
                 "exec": [
                   "if (pm.response.code === 200) {",
                   "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('token', json.token);",
+                  "    pm.collectionVariables.set(\"token\", json.token);",
                   "}"
                 ]
               }
@@ -195,44 +1982,67 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"13800000000\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
-            "description": "种子管理员账号 (seed.js): 13800000000 / admin123"
+            "description": "种子管理员: 13800000000 / admin123"
           },
           "response": []
         },
         {
-          "name": "GET Me 当前用户信息",
+          "name": "⚡ Me 当前用户",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
             }
           },
           "response": []
         },
         {
-          "name": "PUT Profile 更新个人资料",
+          "name": "⚡ Profile 更新资料",
           "request": {
             "method": "PUT",
             "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"新名字\",\n  \"phone\": \"13900000001\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "profile"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
             }
           },
           "response": []
@@ -248,17 +2058,47 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/houses?area=&minRent=&maxRent=&type=&keyword=&page=1&limit=12",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses"],
+              "raw": "{{baseUrl}}/houses?page=1&limit=12",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses"
+              ],
               "query": [
-                { "key": "area",      "value": "", "description": "区域模糊匹配", "disabled": true },
-                { "key": "minRent",   "value": "", "description": "最低租金",     "disabled": true },
-                { "key": "maxRent",   "value": "", "description": "最高租金",     "disabled": true },
-                { "key": "type",      "value": "", "description": "房屋类型",     "disabled": true },
-                { "key": "keyword",   "value": "", "description": "标题/地址搜索", "disabled": true },
-                { "key": "page",      "value": "1",  "description": "页码" },
-                { "key": "limit",     "value": "12", "description": "每页条数(≤100)" }
+                {
+                  "key": "area",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "minRent",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "maxRent",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
               ]
             },
             "description": "公开接口，仅返回 status=approved 的房源。"
@@ -272,10 +2112,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/houses/{{houseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "{{houseId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "{{houseId}}"
+              ]
             },
-            "description": "公开接口。需先在 URL 中替换 {{houseId}} 为实际 ID。"
+            "description": "公开接口。"
           },
           "response": []
         },
@@ -286,8 +2131,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/houses/my",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "my"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "my"
+              ]
             }
           },
           "response": []
@@ -298,11 +2148,20 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/houses/all?status=",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "all"],
+              "raw": "{{baseUrl}}/houses/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "all"
+              ],
               "query": [
-                { "key": "status", "value": "", "description": "可选: pending/approved/rejected/offline", "disabled": true }
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -315,8 +2174,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/houses/pending",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "pending"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "pending"
+              ]
             }
           },
           "response": []
@@ -330,8 +2194,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('houseId', json._id);",
+                  "    pm.collectionVariables.set(\"houseId\", pm.response.json()._id);",
                   "}"
                 ]
               }
@@ -342,13 +2205,21 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"精装修两室一厅\",\n  \"area\": \"朝阳区\",\n  \"address\": \"北京市朝阳区建国路100号\",\n  \"rent\": 3500,\n  \"deposit\": 3500,\n  \"type\": \"两室一厅\",\n  \"size\": 80,\n  \"floor\": \"12层/共18层\",\n  \"facilities\": [\"冰箱\", \"洗衣机\", \"空调\", \"热水器\"],\n  \"description\": \"交通便利，采光好，拎包入住\",\n  \"images\": [\"https://example.com/img1.jpg\"]\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"title\": \"精装修两室一厅\",\n  \"area\": \"朝阳区\",\n  \"address\": \"北京市朝阳区建国路100号\",\n  \"rent\": 3500,\n  \"deposit\": 3500,\n  \"type\": \"两室一厅\",\n  \"size\": 80,\n  \"floor\": \"12层/共18层\",\n  \"facilities\": [\"冰箱\",\"洗衣机\",\"空调\",\"热水器\"],\n  \"description\": \"交通便利，采光好，拎包入住\",\n  \"images\": [\"https://example.com/img1.jpg\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/houses",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses"
+              ]
             }
           },
           "response": []
@@ -361,12 +2232,21 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"已降价-精装修两室一厅\",\n  \"rent\": 3200\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/houses/{{houseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "{{houseId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "{{houseId}}"
+              ]
             }
           },
           "response": []
@@ -379,14 +2259,24 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"offline\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/houses/{{houseId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "{{houseId}}", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "{{houseId}}",
+                "status"
+              ]
             },
-            "description": "status: approved（上架）| offline（下架）"
+            "description": "status: approved | offline"
           },
           "response": []
         },
@@ -398,14 +2288,24 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"approved\",\n  \"rejectReason\": \"\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/houses/{{houseId}}/review",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "{{houseId}}", "review"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "{{houseId}}",
+                "review"
+              ]
             },
-            "description": "status: approved | rejected。拒绝时 fill rejectReason。"
+            "description": "status: approved | rejected。拒绝时填 rejectReason。"
           },
           "response": []
         },
@@ -416,8 +2316,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/houses/{{houseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["houses", "{{houseId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "houses",
+                "{{houseId}}"
+              ]
             },
             "description": "不真删除，status → offline"
           },
@@ -434,14 +2339,22 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/appointments?status=",
-              "host": ["{{baseUrl}}"],
-              "path": ["appointments"],
+              "raw": "{{baseUrl}}/appointments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments"
+              ],
               "query": [
-                { "key": "status", "value": "", "description": "可选: pending/confirmed/rejected/cancelled", "disabled": true }
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             },
-            "description": "tenant → 自己的预约；landlord → 名下房源的预约；admin → 全部"
+            "description": "tenant→自己的；landlord→名下房源；admin→全部"
           },
           "response": []
         },
@@ -454,8 +2367,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('appointmentId', json._id);",
+                  "    pm.collectionVariables.set(\"appointmentId\", pm.response.json()._id);",
                   "}"
                 ]
               }
@@ -467,12 +2379,20 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"visitDate\": \"2026-07-10\",\n  \"visitTime\": \"14:00\",\n  \"contact\": \"13800000000\",\n  \"remark\": \"下班后看房\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/appointments",
-              "host": ["{{baseUrl}}"],
-              "path": ["appointments"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments"
+              ]
             }
           },
           "response": []
@@ -484,10 +2404,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/appointments/{{appointmentId}}/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["appointments", "{{appointmentId}}", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "{{appointmentId}}",
+                "confirm"
+              ]
             },
-            "description": "仅 pending → confirmed，需房东本人"
+            "description": "仅 pending→confirmed，需房东本人"
           },
           "response": []
         },
@@ -498,15 +2424,25 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"reason\": \"时间冲突，无法安排\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"reason\": \"时间冲突\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/appointments/{{appointmentId}}/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["appointments", "{{appointmentId}}", "reject"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "{{appointmentId}}",
+                "reject"
+              ]
             },
-            "description": "仅 pending → rejected，需房东本人"
+            "description": "仅 pending→rejected"
           },
           "response": []
         },
@@ -517,10 +2453,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/appointments/{{appointmentId}}/cancel",
-              "host": ["{{baseUrl}}"],
-              "path": ["appointments", "{{appointmentId}}", "cancel"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "{{appointmentId}}",
+                "cancel"
+              ]
             },
-            "description": "仅 pending → cancelled，需租客本人"
+            "description": "仅 pending→cancelled，需租客本人"
           },
           "response": []
         }
@@ -536,10 +2478,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/contracts",
-              "host": ["{{baseUrl}}"],
-              "path": ["contracts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts"
+              ]
             },
-            "description": "tenant → 自己的合同；landlord → 名下房源的合同；admin → 全部"
+            "description": "tenant→自己的；landlord→名下房源；admin→全部"
           },
           "response": []
         },
@@ -550,8 +2496,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/contracts/{{contractId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["contracts", "{{contractId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "{{contractId}}"
+              ]
             },
             "description": "需合同双方或 admin"
           },
@@ -566,8 +2517,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('contractId', json._id);",
+                  "    pm.collectionVariables.set(\"contractId\", pm.response.json()._id);",
                   "}"
                 ]
               }
@@ -579,14 +2529,22 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"houseId\": \"{{houseId}}\",\n  \"startDate\": \"2026-08-01\",\n  \"endDate\": \"2027-07-31\",\n  \"rent\": 3500,\n  \"deposit\": 3500\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/contracts",
-              "host": ["{{baseUrl}}"],
-              "path": ["contracts"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts"
+              ]
             },
-            "description": "所有字段必填。房源必须属于当前房东。"
+            "description": "所有字段必填"
           },
           "response": []
         },
@@ -597,10 +2555,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/contracts/{{contractId}}/sign",
-              "host": ["{{baseUrl}}"],
-              "path": ["contracts", "{{contractId}}", "sign"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "{{contractId}}",
+                "sign"
+              ]
             },
-            "description": "租客签 → signedByTenant；房东签 → signedByLandlord；双方签 → status=signed"
+            "description": "双方签→signed"
           },
           "response": []
         },
@@ -611,10 +2575,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/contracts/{{contractId}}/terminate",
-              "host": ["{{baseUrl}}"],
-              "path": ["contracts", "{{contractId}}", "terminate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "{{contractId}}",
+                "terminate"
+              ]
             },
-            "description": "status → terminated"
+            "description": "status→terminated"
           },
           "response": []
         }
@@ -629,12 +2599,24 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/finance?month=&houseId=",
-              "host": ["{{baseUrl}}"],
-              "path": ["finance"],
+              "raw": "{{baseUrl}}/finance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "finance"
+              ],
               "query": [
-                { "key": "month",   "value": "", "description": "YYYY-MM 格式", "disabled": true },
-                { "key": "houseId", "value": "", "description": "房源 ID",      "disabled": true }
+                {
+                  "key": "month",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "houseId",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -648,12 +2630,20 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"contractId\": \"{{contractId}}\",\n  \"amount\": 3500,\n  \"month\": \"2026-08\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/finance",
-              "host": ["{{baseUrl}}"],
-              "path": ["finance"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "finance"
+              ]
             },
             "description": "所有字段必填"
           },
@@ -671,10 +2661,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/reviews/house/{{houseId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["reviews", "house", "{{houseId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "house",
+                "{{houseId}}"
+              ]
             },
-            "description": "公开接口。返回 { reviews, averageScore, total }"
+            "description": "返回 { reviews, averageScore, total }"
           },
           "response": []
         },
@@ -685,8 +2681,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/reviews/my",
-              "host": ["{{baseUrl}}"],
-              "path": ["reviews", "my"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "my"
+              ]
             }
           },
           "response": []
@@ -700,8 +2701,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('reviewId', json._id);",
+                  "    pm.collectionVariables.set(\"reviewId\", pm.response.json()._id);",
                   "}"
                 ]
               }
@@ -712,15 +2712,23 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"score\": 5,\n  \"content\": \"非常好的房子，房东很热情！\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"score\": 5,\n  \"content\": \"非常好的房子！\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/reviews",
-              "host": ["{{baseUrl}}"],
-              "path": ["reviews"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews"
+              ]
             },
-            "description": "score: 1-5；同一租客对同一房源不可重复评价"
+            "description": "score: 1-5；不可重复评价"
           },
           "response": []
         },
@@ -731,10 +2739,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/reviews/{{reviewId}}/hide",
-              "host": ["{{baseUrl}}"],
-              "path": ["reviews", "{{reviewId}}", "hide"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "{{reviewId}}",
+                "hide"
+              ]
             },
-            "description": "切换 visible 布尔值。每次调用翻转一次。"
+            "description": "每次调用翻转 visible"
           },
           "response": []
         }
@@ -749,12 +2763,25 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/users?search=&role=",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users"],
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
               "query": [
-                { "key": "search", "value": "", "description": "模糊搜索姓名/手机号", "disabled": true },
-                { "key": "role",   "value": "", "description": "tenant | landlord | admin", "disabled": true }
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -768,8 +2795,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "var json = pm.response.json();",
-                  "pm.collectionVariables.set('userId', json._id);"
+                  "pm.collectionVariables.set(\"userId\", pm.response.json()._id);"
                 ]
               }
             }
@@ -780,12 +2806,23 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"disabled\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{userId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users", "{{userId}}", "status"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "status"
+              ]
             },
             "description": "status: active | disabled"
           },
@@ -798,8 +2835,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/admin/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "stats"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ]
             }
           },
           "response": []
@@ -811,8 +2853,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/admin/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "settings"
+              ]
             }
           },
           "response": []
@@ -824,13 +2871,22 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"houseTypes\": [\"一室\", \"两室一厅\", \"三室一厅\", \"整租\"],\n  \"paymentMethods\": [\"月付\", \"季付\", \"半年付\", \"年付\"],\n  \"auditEnabled\": true\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"houseTypes\": [\"一室\",\"两室一厅\",\"三室一厅\",\"整租\"],\n  \"paymentMethods\": [\"月付\",\"季付\",\"半年付\",\"年付\"],\n  \"auditEnabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/admin/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "settings"
+              ]
             },
             "description": "传入任意 key-value 对，逐个 upsert"
           },
@@ -848,10 +2904,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             },
-            "description": "无需认证。返回 { status: 'ok', time: 'ISO' }"
+            "description": "返回 { status, time }"
           },
           "response": []
         }
