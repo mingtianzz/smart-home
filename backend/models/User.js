@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['tenant', 'landlord', 'admin'], required: true },
   status: { type: String, enum: ['active', 'disabled'], default: 'active' },
   avatar: { type: String, default: '' },
-  gender: { type: String, enum: ['male', 'female', 'other'], default: '' },
+  gender: { type: String, enum: ['male', 'female', 'other', ''], default: '' },
   birthday: { type: Date },
   idCard: { type: String, default: '' },
   address: { type: String, default: '' },

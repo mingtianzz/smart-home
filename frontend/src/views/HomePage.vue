@@ -90,14 +90,12 @@
 import { ref, computed, onMounted } from 'vue'
 import request from '../utils/request'
 import HouseCard from '../components/HouseCard.vue'
-import { SAMPLE_HOUSES, filterSampleHouses } from '../data/sampleHouses.js'
 
 const houses = ref([])
 const loading = ref(false)
 const page = ref(1)
 const pageSize = 12
 const total = ref(0)
-const usingBackend = ref(true)
 
 const searchForm = ref({
   keyword: '',
@@ -119,26 +117,11 @@ async function loadHouses() {
     if (searchForm.value.maxRent !== null) params.maxRent = searchForm.value.maxRent
     if (searchForm.value.type) params.type = searchForm.value.type
     const res = await request.get('/houses', { params })
-    const backendHouses = res.houses || res.data || []
-    if (backendHouses.length > 0) {
-      houses.value = backendHouses
-      total.value = res.total || backendHouses.length
-      usingBackend.value = true
-    } else {
-      // 后端无数据，使用样例数据展示
-      const filtered = filterSampleHouses(searchForm.value)
-      const start = (page.value - 1) * pageSize
-      houses.value = filtered.slice(start, start + pageSize)
-      total.value = filtered.length
-      usingBackend.value = false
-    }
+    houses.value = res.houses || res.data || []
+    total.value = res.total || houses.value.length
   } catch {
-    // 后端连接失败，使用样例数据
-    const filtered = filterSampleHouses(searchForm.value)
-    const start = (page.value - 1) * pageSize
-    houses.value = filtered.slice(start, start + pageSize)
-    total.value = filtered.length
-    usingBackend.value = false
+    houses.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }

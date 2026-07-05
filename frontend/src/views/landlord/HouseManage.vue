@@ -105,7 +105,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '../../utils/request'
-import { SAMPLE_HOUSES } from '../../data/sampleHouses.js'
 
 const houses = ref([])
 const loading = ref(false)
@@ -127,40 +126,15 @@ async function loadHouses() {
   loading.value = true
   try {
     const res = await request.get('/houses/my')
-    const backend = res.houses || res.data || []
-    if (backend.length > 0) {
-      houses.value = backend
-    } else {
-      // 后端无数据时使用样例
-      houses.value = SAMPLE_HOUSES.slice(0, 6).map((h, i) => ({
-        ...h,
-        _id: 'my-sample-' + i,
-        id: 'my-sample-' + i,
-        status: i < 3 ? 'approved' : i < 5 ? 'pending' : 'offline'
-      }))
-    }
+    houses.value = res.houses || res.data || []
   } catch {
-    // 后端连接失败，使用样例
-    houses.value = SAMPLE_HOUSES.slice(0, 6).map((h, i) => ({
-      ...h,
-      _id: 'my-sample-' + i,
-      id: 'my-sample-' + i,
-      status: i < 3 ? 'approved' : i < 5 ? 'pending' : 'offline'
-    }))
+    houses.value = []
   } finally {
     loading.value = false
   }
 }
 
 async function toggleStatus(id, status) {
-  if (String(id).startsWith('my-sample')) {
-    const item = houses.value.find(h => (h._id || h.id) === id)
-    if (item) {
-      item.status = status
-      ElMessage.success(status === 'approved' ? '已上架' : '已下架')
-    }
-    return
-  }
   try {
     await request.put(`/houses/${id}/status`, { status })
     ElMessage.success(status === 'approved' ? '已上架' : '已下架')

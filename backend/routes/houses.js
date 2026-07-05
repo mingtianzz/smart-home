@@ -65,7 +65,7 @@ router.get('/my', authenticate, authorize('landlord'), async (req, res, next) =>
       filter.status = req.query.status;
     }
     const houses = await House.find(filter).sort({ createdAt: -1 });
-    res.json(houses);
+    res.json({ houses });
   } catch (err) {
     next(err);
   }
