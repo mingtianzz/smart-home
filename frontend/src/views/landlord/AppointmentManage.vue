@@ -179,19 +179,8 @@ async function loadAppointments() {
   try {
     const res = await request.get('/appointments')
     const list = res.appointments || res.data || (Array.isArray(res) ? res : [])
-    if (list.length > 0) {
-      appointments.value = list
-    } else if (appointments.value.length === 0) {
-      // 后端无数据时展示样例预约（仅首次加载时）
-      appointments.value = [
-        { _id: 'apt-1', houseId: { title: '朝阳大悦城 · 精装两居室' }, tenantId: { name: '张三', phone: '138****1234' }, visitDate: '2026-07-06', visitTime: '14:00', contact: '138****1234', remark: '周末方便看房，希望房主在', status: 'pending' },
-        { _id: 'apt-2', houseId: { title: '海淀中关村 · 高端公寓' }, tenantId: { name: '李四', phone: '139****5678' }, visitDate: '2026-07-05', visitTime: '10:30', contact: '139****5678', remark: '', status: 'confirmed' },
-        { _id: 'apt-3', houseId: { title: '三里屯 · 现代复式' }, tenantId: { name: '王五', phone: '136****9012' }, visitDate: '2026-07-04', visitTime: '16:00', contact: '136****9012', remark: '想了解一下周边交通', status: 'cancelled' },
-        { _id: 'apt-4', houseId: { title: '望京SOHO · 温馨单间' }, tenantId: { name: '赵六', phone: '137****3456' }, visitDate: '2026-07-03', visitTime: '09:00', contact: '137****3456', remark: '已经找到其他房源了', status: 'rejected' },
-      ]
-    }
+    appointments.value = list
   } catch {
-    // fallback
     appointments.value = []
   } finally {
     loading.value = false
@@ -199,11 +188,6 @@ async function loadAppointments() {
 }
 
 async function confirmAppointment(id) {
-  if (String(id).startsWith('apt-')) {
-    const item = appointments.value.find(a => (a._id || a.id) === id)
-    if (item) { item.status = 'confirmed'; ElMessage.success('已确认该预约') }
-    return
-  }
   try {
     await request.put(`/appointments/${id}/confirm`)
     ElMessage.success('已确认该预约')
@@ -220,18 +204,12 @@ function showRejectDialog(id) {
 async function submitReject() {
   rejectLoading.value = true
   try {
-    if (String(rejectId.value).startsWith('apt-')) {
-      const item = appointments.value.find(a => (a._id || a.id) === rejectId.value)
-      if (item) { item.status = 'rejected'; ElMessage.success('已拒绝该预约') }
-    } else {
-      await request.put(`/appointments/${rejectId.value}/reject`, { reason: rejectReason.value })
-      ElMessage.success('已拒绝该预约')
-    }
+    await request.put(`/appointments/${rejectId.value}/reject`, { reason: rejectReason.value })
+    ElMessage.success('已拒绝该预约')
     rejectDialogVisible.value = false
     loadAppointments()
   } catch (err) {
     console.error('拒绝预约失败:', err)
-    // 错误消息已由请求拦截器显示
   } finally {
     rejectLoading.value = false
   }
