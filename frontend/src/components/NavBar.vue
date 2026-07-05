@@ -29,42 +29,6 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item v-if="auth.isTenant">
-                  <router-link to="/tenant/appointments" class="dropdown-link">我的预约</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isTenant">
-                  <router-link to="/tenant/contracts" class="dropdown-link">我的合同</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isTenant">
-                  <router-link to="/tenant/reviews" class="dropdown-link">我的评价</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isTenant">
-                  <router-link to="/tenant/profile" class="dropdown-link">个人信息</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isLandlord">
-                  <router-link to="/landlord/houses" class="dropdown-link">房源管理</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isLandlord">
-                  <router-link to="/landlord/appointments" class="dropdown-link">预约管理</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isLandlord">
-                  <router-link to="/landlord/contracts" class="dropdown-link">合同管理</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isLandlord">
-                  <router-link to="/landlord/finance" class="dropdown-link">财务管理</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin">
-                  <router-link to="/admin/users" class="dropdown-link">用户管理</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin">
-                  <router-link to="/admin/houses" class="dropdown-link">房源审核</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin">
-                  <router-link to="/admin/stats" class="dropdown-link">数据统计</router-link>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin">
-                  <router-link to="/admin/settings" class="dropdown-link">系统设置</router-link>
-                </el-dropdown-item>
                 <template v-if="auth.isTenant">
                   <el-dropdown-item>
                     <router-link to="/tenant/appointments" class="dropdown-link">我的预约</router-link>
@@ -74,6 +38,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item>
                     <router-link to="/tenant/reviews" class="dropdown-link">我的评价</router-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <router-link to="/tenant/profile" class="dropdown-link">个人信息</router-link>
                   </el-dropdown-item>
                 </template>
                 <template v-if="auth.isLandlord">

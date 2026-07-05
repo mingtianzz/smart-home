@@ -20,9 +20,14 @@ request.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response
       if (status === 401) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        window.location.href = '/login'
+        // 登录页的 401 显示错误信息，不跳转
+        if (window.location.pathname === '/login' || window.location.pathname === '/register') {
+          ElMessage.error(data?.message || '账号或密码错误')
+        } else {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          window.location.href = '/login'
+        }
       } else if (status === 403) {
         ElMessage.error('没有权限执行此操作')
       } else if (status === 422) {
