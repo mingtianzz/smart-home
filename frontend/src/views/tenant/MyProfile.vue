@@ -112,7 +112,7 @@ const avatarText = computed(() => {
 })
 
 const avatarStyle = computed(() => ({
-  backgroundColor: '#0d7a7a',
+  backgroundColor: '#1d4359',
   color: '#fff',
   fontWeight: 600,
   fontSize: '24px'
@@ -226,7 +226,7 @@ onMounted(loadProfile)
 .role-tag {
   display: inline-block;
   font-size: 12px;
-  color: #0d7a7a;
+  color: #1d4359;
   background: #e2f3f3;
   padding: 4px 12px;
   border-radius: 4px;

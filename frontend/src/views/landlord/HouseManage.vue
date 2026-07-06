@@ -169,11 +169,11 @@ onMounted(loadHouses)
 .mini-stat::before {
   content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
 }
-.stat-all::before      { background: linear-gradient(90deg, #0d7a7a, #3ba3a3); }
+.stat-all::before      { background: linear-gradient(90deg, #1d4359, #3ba3a3); }
 .stat-approved::before  { background: linear-gradient(90deg, #3ba3a3, #4caf7d); }
 .stat-pending::before   { background: linear-gradient(90deg, #c8943a, #d4a84e); }
 .stat-other::before     { background: linear-gradient(90deg, #9ca3a3, #b8bfbf); }
-.mini-stat:hover { box-shadow: 0 4px 16px rgba(13, 122, 122, 0.06); }
+.mini-stat:hover { box-shadow: 0 4px 16px rgba(29, 67, 89, 0.06); }
 
 .mini-value { font-size: 26px; font-weight: 700; color: #1a1c1c; display: block; line-height: 1.2; }
 .mini-label { font-size: 12px; color: #9ca3a3; margin-top: 4px; display: block; }
@@ -192,7 +192,7 @@ onMounted(loadHouses)
   background: linear-gradient(135deg, #f5fafa, #ecf4f4);
   display: flex; align-items: center; justify-content: center;
 }
-.cell-highlight { font-weight: 600; color: #0d7a7a; }
+.cell-highlight { font-weight: 600; color: #1d4359; }
 .cell-price { font-size: 15px; font-weight: 700; color: #c56a62; }
 .cell-unit { font-size: 11px; color: #9ca3a3; margin-left: 2px; }
 

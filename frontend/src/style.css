@@ -1,39 +1,38 @@
 /* ============================================================
-   Design System — 智慧房屋租赁系统 · 华丽升级版
-   Primary:  Teal     #0d7a7a  →  oklch(0.48 0.11 195)
-   Accent:   Gold     #c8943a  →  oklch(0.70 0.14 80)
-   Rose:     #c56a62
+   Design System — 智慧房屋租赁系统 · 深青风格
+   Primary:  #1d4359  (深青蓝, 来自 regist 示例)
+   Accent:   #3b4859  (按钮色)
    Surface:  warm off-white
    ============================================================ */
 
 /* --- Element Plus Theme Overrides --- */
 :root {
-  --el-color-primary: #0d7a7a;
-  --el-color-primary-light-3: #2e9e9e;
-  --el-color-primary-light-5: #5ab8b8;
-  --el-color-primary-light-7: #93d3d3;
-  --el-color-primary-light-8: #b6e4e4;
-  --el-color-primary-light-9: #d9f2f2;
-  --el-color-primary-dark-2: #096060;
+  --el-color-primary: #1d4359;
+  --el-color-primary-light-3: #3b637a;
+  --el-color-primary-light-5: #63869e;
+  --el-color-primary-light-7: #95b0c2;
+  --el-color-primary-light-8: #b8ccd9;
+  --el-color-primary-light-9: #dce6ed;
+  --el-color-primary-dark-2: #15334a;
 
   --el-color-success: #4caf7d;
   --el-color-warning: #c8943a;
   --el-color-danger: #c56a62;
-  --el-color-info: #5a8f9f;
+  --el-color-info: #5a7f8f;
 
   --el-text-color-primary: #1a1c1c;
   --el-text-color-regular: #2c3030;
-  --el-text-color-secondary: #6b7272;
+  --el-text-color-secondary: #516473;
   --el-text-color-placeholder: #9ca3a3;
 
-  --el-border-color: #e2e6e6;
-  --el-border-color-light: #e8ebeb;
+  --el-border-color: #d6dee4;
+  --el-border-color-light: #e2e8ec;
   --el-border-color-lighter: #eef0f0;
   --el-border-color-extra-light: #f3f5f5;
 
-  --el-bg-color: #f7f8f8;
+  --el-bg-color: #f5f7f8;
   --el-bg-color-overlay: #ffffff;
-  --el-fill-color: #f7f8f8;
+  --el-fill-color: #f5f7f8;
   --el-fill-color-light: #fafbfb;
   --el-fill-color-lighter: #fcfcfc;
 
@@ -51,24 +50,24 @@
   --el-font-weight-primary: 500;
 
   /* ── Custom design tokens ── */
-  --app-bg: #f7f8f8;
+  --app-bg: #f5f7f8;
   --app-surface: #ffffff;
   --app-text: #1a1c1c;
-  --app-text-secondary: #5c6363;
+  --app-text-secondary: #516473;
   --app-text-muted: #9ca3a3;
-  --app-border: #e4e8e8;
-  --app-border-light: #eff1f1;
+  --app-border: #d6dee4;
+  --app-border-light: #e2e8ec;
 
   --app-radius-sm: 8px;
   --app-radius-md: 12px;
   --app-radius-lg: 16px;
   --app-radius-xl: 20px;
 
-  --app-shadow-xs: 0 1px 2px rgba(13, 122, 122, 0.04);
-  --app-shadow-sm: 0 2px 8px rgba(13, 122, 122, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-  --app-shadow-md: 0 6px 20px rgba(13, 122, 122, 0.07), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --app-shadow-lg: 0 12px 32px rgba(13, 122, 122, 0.09), 0 4px 12px rgba(0, 0, 0, 0.05);
-  --app-shadow-glow: 0 0 0 4px rgba(13, 122, 122, 0.08), 0 8px 24px rgba(13, 122, 122, 0.10);
+  --app-shadow-xs: 0 1px 2px rgba(29, 67, 89, 0.04);
+  --app-shadow-sm: 0 2px 8px rgba(29, 67, 89, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --app-shadow-md: 0 6px 20px rgba(29, 67, 89, 0.07), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --app-shadow-lg: 0 12px 32px rgba(29, 67, 89, 0.09), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --app-shadow-glow: 0 0 0 4px rgba(29, 67, 89, 0.08), 0 8px 24px rgba(29, 67, 89, 0.10);
 
   --app-transition-fast: 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
   --app-transition: 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -105,7 +104,7 @@ a {
   transition: color var(--app-transition-fast);
 }
 
-/* ── Luxurious Background Texture ── */
+/* ── Background Texture ── */
 body::before {
   content: '';
   position: fixed;
@@ -113,10 +112,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    /* 主渐变光晕 */
-    radial-gradient(ellipse 90% 50% at 10% 0%,   rgba(13, 122, 122, 0.035), transparent 60%),
+    radial-gradient(ellipse 90% 50% at 10% 0%,   rgba(29, 67, 89, 0.035), transparent 60%),
     radial-gradient(ellipse 70% 40% at 90% 20%,  rgba(200, 148, 58, 0.025),  transparent 55%),
-    radial-gradient(ellipse 60% 50% at 50% 100%,  rgba(13, 122, 122, 0.025), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 50% 100%,  rgba(29, 67, 89, 0.025), transparent 60%),
     radial-gradient(ellipse 40% 30% at 85% 80%,  rgba(200, 148, 58, 0.018),  transparent 50%);
 }
 
@@ -145,7 +143,6 @@ body::before {
   position: relative;
 }
 
-/* decorative underline for page headings */
 .card-header h2::after,
 .card-header h3::after {
   content: '';
@@ -155,7 +152,7 @@ body::before {
   width: 32px;
   height: 3px;
   border-radius: 2px;
-  background: linear-gradient(90deg, #0d7a7a, #c8943a);
+  background: linear-gradient(90deg, #1d4359, #3b637a);
 }
 
 .text-center { text-align: center; }
@@ -175,7 +172,7 @@ body::before {
   border-radius: var(--app-radius-lg);
   border: 1px solid var(--app-border-light);
   box-shadow: var(--app-shadow-sm);
-  background: linear-gradient(135deg, #ffffff, #fafcfc);
+  background: linear-gradient(135deg, #ffffff, #fafbfb);
 }
 
 .search-card .el-card__body {
@@ -209,7 +206,7 @@ body::before {
   border-radius: var(--app-radius-xl);
   border: 1px solid var(--app-border-light);
   box-shadow: var(--app-shadow-md);
-  background: linear-gradient(135deg, #ffffff 0%, #fafcfc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfb 100%);
 }
 
 .form-title {
@@ -268,12 +265,12 @@ body::before {
   color: var(--el-color-primary);
   border-bottom-color: var(--el-color-primary);
   font-weight: 700;
-  background: var(--el-color-primary-light-9);
+  background: rgba(29, 67, 89, 0.06);
 }
 
 .sidebar-layout .el-menu--horizontal .el-menu-item:hover {
   color: var(--el-color-primary);
-  background: rgba(13, 122, 122, 0.05);
+  background: rgba(29, 67, 89, 0.04);
 }
 
 .content-area {
@@ -291,8 +288,8 @@ body::before {
 /* ── Table ── */
 .el-table {
   --el-table-border-color: var(--app-border-light);
-  --el-table-header-bg-color: #f9fbfb;
-  --el-table-row-hover-bg-color: rgba(13, 122, 122, 0.03);
+  --el-table-header-bg-color: #f8f9fa;
+  --el-table-row-hover-bg-color: rgba(29, 67, 89, 0.03);
   border-radius: var(--app-radius-md);
   overflow: hidden;
   border: 1px solid var(--app-border-light);
@@ -304,7 +301,7 @@ body::before {
   color: var(--app-text);
   font-size: 13px;
   letter-spacing: 0.03em;
-  background: linear-gradient(180deg, #f9fbfb, #f5f7f7);
+  background: linear-gradient(180deg, #f8f9fa, #f4f6f7);
 }
 
 .el-table .el-table__row {
@@ -335,18 +332,18 @@ body::before {
 .el-button--primary {
   --el-button-bg-color: var(--el-color-primary);
   --el-button-border-color: var(--el-color-primary);
-  --el-button-hover-bg-color: #096060;
-  --el-button-hover-border-color: #096060;
-  --el-button-active-bg-color: #075454;
-  --el-button-active-border-color: #075454;
-  background: linear-gradient(135deg, #0d7a7a, #0b6e6e);
+  --el-button-hover-bg-color: #15334a;
+  --el-button-hover-border-color: #15334a;
+  --el-button-active-bg-color: #102a3e;
+  --el-button-active-border-color: #102a3e;
+  background: linear-gradient(135deg, #1d4359, #1a3b50);
   border: none;
-  box-shadow: 0 2px 8px rgba(13, 122, 122, 0.25);
+  box-shadow: 0 2px 8px rgba(29, 67, 89, 0.25);
 }
 
 .el-button--primary:hover {
-  background: linear-gradient(135deg, #0f8a8a, #0d7a7a);
-  box-shadow: 0 4px 14px rgba(13, 122, 122, 0.35);
+  background: linear-gradient(135deg, #23526b, #1d4359);
+  box-shadow: 0 4px 14px rgba(29, 67, 89, 0.35);
   transform: translateY(-1px);
 }
 
@@ -357,16 +354,16 @@ body::before {
 }
 
 .el-input__wrapper:hover {
-  box-shadow: 0 0 0 1px rgba(13, 122, 122, 0.15);
+  box-shadow: 0 0 0 1px rgba(29, 67, 89, 0.15);
 }
 
 .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 3px rgba(13, 122, 122, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(29, 67, 89, 0.12) !important;
 }
 
 /* ── Select ── */
 .el-select .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 3px rgba(13, 122, 122, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(29, 67, 89, 0.12) !important;
 }
 
 /* ── Dialog ── */
@@ -407,16 +404,16 @@ body::before {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(13, 122, 122, 0.18);
+  background: rgba(29, 67, 89, 0.18);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(13, 122, 122, 0.30);
+  background: rgba(29, 67, 89, 0.30);
 }
 
 /* ── Selection ── */
 ::selection {
-  background: rgba(13, 122, 122, 0.15);
+  background: rgba(29, 67, 89, 0.15);
   color: var(--app-text);
 }
 
@@ -427,6 +424,6 @@ body::before {
   width: 48px;
   height: 4px;
   border-radius: 2px;
-  background: linear-gradient(90deg, #0d7a7a, #c8943a);
+  background: linear-gradient(90deg, #1d4359, #3b637a);
   margin: 16px 0;
 }

@@ -76,7 +76,7 @@
     </div>
 
     <div v-if="!loading && houses.length === 0" class="empty-state">
-      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#b6e4e4" stroke-width="1.0">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#b8ccd9" stroke-width="1.0">
         <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z"/>
         <path d="M9 21V13H15V21" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -156,8 +156,8 @@ onMounted(() => {
   align-items: center;
   gap: 7px;
   font-size: 13px;
-  color: #5c6363;
-  background: rgba(13, 122, 122, 0.06);
+  color: #516473;
+  background: rgba(29, 67, 89, 0.06);
   padding: 5px 16px;
   border-radius: 20px;
   margin-bottom: 20px;
@@ -168,7 +168,7 @@ onMounted(() => {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d7a7a, #c8943a);
+  background: linear-gradient(135deg, #1d4359, #3b637a);
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
@@ -184,7 +184,7 @@ onMounted(() => {
   margin-bottom: 12px;
   letter-spacing: -0.025em;
   line-height: 1.2;
-  background: linear-gradient(135deg, #1a1c1c 0%, #0d7a7a 100%);
+  background: linear-gradient(135deg, #1a1c1c 0%, #1d4359 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -212,7 +212,7 @@ onMounted(() => {
   display: block;
   font-size: 20px;
   font-weight: 700;
-  color: #0d7a7a;
+  color: #1d4359;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
@@ -226,7 +226,7 @@ onMounted(() => {
 .stat-divider {
   width: 1px;
   height: 24px;
-  background: #e4e8e8;
+  background: #d6dee4;
 }
 
 /* ── Search ── */
@@ -245,15 +245,15 @@ onMounted(() => {
 }
 
 .reset-btn {
-  color: #6b7272;
-  border-color: #e4e8e8;
+  color: #516473;
+  border-color: #d6dee4;
   font-weight: 500;
 }
 
 .reset-btn:hover {
-  color: #0d7a7a;
-  border-color: #0d7a7a;
-  background: rgba(13, 122, 122, 0.04);
+  color: #1d4359;
+  border-color: #1d4359;
+  background: rgba(29, 67, 89, 0.04);
 }
 
 /* ── Grid animation ── */
@@ -281,7 +281,7 @@ onMounted(() => {
 .empty-state p {
   font-size: 16px;
   margin-bottom: 6px;
-  color: #6b7272;
+  color: #516473;
 }
 
 .empty-hint {

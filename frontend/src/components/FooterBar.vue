@@ -3,8 +3,8 @@
     <div class="footer-inner">
       <div class="footer-brand">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="#93d3d3" stroke-width="1.5" fill="none"/>
-          <path d="M9 21V13H15V21" stroke="#93d3d3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="#95b0c2" stroke-width="1.5" fill="none"/>
+          <path d="M9 21V13H15V21" stroke="#95b0c2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>{{ year }} 智慧房屋租赁系统</span>
       </div>
@@ -21,7 +21,7 @@ const year = new Date().getFullYear()
 <style scoped>
 .footer {
   background: #fff;
-  border-top: 1px solid #eff1f1;
+  border-top: 1px solid #e2e8ec;
   margin-top: auto;
   position: relative;
 }
@@ -33,7 +33,7 @@ const year = new Date().getFullYear()
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(200, 148, 58, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(29, 67, 89, 0.15), transparent);
 }
 
 .footer-inner {

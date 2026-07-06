@@ -88,8 +88,8 @@ const statusText = computed(() => {
 
 .house-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 32px rgba(13, 122, 122, 0.09), 0 4px 12px rgba(0, 0, 0, 0.04);
-  border-color: rgba(13, 122, 122, 0.15);
+  box-shadow: 0 12px 32px rgba(29, 67, 89, 0.09), 0 4px 12px rgba(0, 0, 0, 0.04);
+  border-color: rgba(29, 67, 89, 0.15);
 }
 
 .house-card:active {
@@ -134,7 +134,7 @@ const statusText = computed(() => {
 }
 
 .house-card:hover .card-overlay {
-  background: rgba(13, 122, 122, 0.04);
+  background: rgba(29, 67, 89, 0.04);
 }
 
 .image-placeholder {
@@ -182,7 +182,7 @@ const statusText = computed(() => {
 }
 
 .house-card:hover .house-title {
-  color: #0d7a7a;
+  color: #1d4359;
 }
 
 .house-meta {

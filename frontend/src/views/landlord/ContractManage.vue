@@ -57,14 +57,14 @@
       </el-table-column>
       <el-table-column label="状态" width="95" align="center">
         <template #default="{ row }">
-          <el-tag :type="statusType(row.status)" size="small" class="status-tag" effect="dark">{{ statusText(row.status) }}</el-tag>
+          <el-tag :type="statusType(row.status, row)" size="small" class="status-tag" effect="dark">{{ statusText(row.status, row) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button size="small" class="action-btn" @click="viewContract(row._id)">查看</el-button>
           <el-button
-            v-if="row.status === 'draft' || row.status === 'pending_sign'"
+            v-if="(row.status === 'draft' || row.status === 'pending_sign') && !row.signedByLandlord"
             type="success" size="small" class="action-btn"
             @click="signContract(row._id)"
           >签署</el-button>
@@ -187,7 +187,7 @@
       <template #footer>
         <el-button @click="detailVisible = false">关闭</el-button>
         <el-button
-          v-if="detailContract && (detailContract.status === 'draft' || detailContract.status === 'pending_sign')"
+          v-if="detailContract && (detailContract.status === 'draft' || detailContract.status === 'pending_sign') && !detailContract.signedByLandlord"
           type="success" @click="signFromDetail"
         >签署合同</el-button>
       </template>
@@ -259,10 +259,20 @@ const statusCounts = computed(() => ({
   terminated: contracts.value.filter(c => c.status === 'terminated').length,
 }))
 
-function statusType(s) {
+function statusType(s, contract) {
+  if (s === 'pending_sign') {
+    if (contract?.signedByLandlord) {
+      return 'primary'
+    }
+  }
   return { draft: 'info', pending_sign: 'warning', signed: 'success', terminated: 'danger' }[s] || 'info'
 }
-function statusText(s) {
+function statusText(s, contract) {
+  if (s === 'pending_sign') {
+    if (contract?.signedByLandlord) {
+      return '甲方已签·待乙方'
+    }
+  }
   return { draft: '草稿', pending_sign: '待签署', signed: '已签署', terminated: '已终止' }[s] || s
 }
 function formatDate(dateStr) {
@@ -348,12 +358,16 @@ async function viewContract(id) {
 
 async function signContract(id) {
   try {
-    await ElMessageBox.confirm('确认签署该合同？签署后不可撤销。', '提示')
+    await ElMessageBox.confirm(
+      '签署后该房源将立即锁定并下架，不再对外展示。<br>同时合同将自动生成每月收入记录。',
+      '签署确认',
+      { confirmButtonText: '确定签署', cancelButtonText: '取消', dangerouslyUseHTMLString: true }
+    )
     await request.put(`/contracts/${id}/sign`)
     ElMessage.success('合同签署成功')
     loadContracts()
     if (detailVisible.value && detailContract.value?._id === id) {
-      detailVisible.value = false
+      await viewContract(id)
     }
   } catch (err) {
     if (err !== 'cancel') console.error('签署合同失败:', err)
@@ -395,11 +409,11 @@ onMounted(() => {
 .mini-stat::before {
   content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
 }
-.stat-all::before     { background: linear-gradient(90deg, #0d7a7a, #3ba3a3); }
+.stat-all::before     { background: linear-gradient(90deg, #1d4359, #3ba3a3); }
 .stat-signed::before  { background: linear-gradient(90deg, #3ba3a3, #4caf7d); }
 .stat-pending::before { background: linear-gradient(90deg, #c8943a, #d4a84e); }
 .stat-ended::before   { background: linear-gradient(90deg, #9ca3a3, #b8bfbf); }
-.mini-stat:hover { box-shadow: 0 4px 16px rgba(13,122,122,0.06); }
+.mini-stat:hover { box-shadow: 0 4px 16px rgba(29,67,89,0.06); }
 
 .mini-value { font-size: 26px; font-weight: 700; color: #1a1c1c; display: block; line-height: 1.2; }
 .mini-label { font-size: 12px; color: #9ca3a3; margin-top: 4px; display: block; }
@@ -407,7 +421,7 @@ onMounted(() => {
 /* ── Table ── */
 .cell-house  { font-weight: 500; color: #1a1c1c; }
 .cell-tenant { font-weight: 500; }
-.cell-date   { font-weight: 500; color: #0d7a7a; }
+.cell-date   { font-weight: 500; color: #1d4359; }
 .cell-price  { font-weight: 700; color: #c56a62; }
 .action-btn  { font-weight: 500; border-radius: 6px; }
 
@@ -436,10 +450,10 @@ onMounted(() => {
   text-align: center;
   padding-bottom: 20px;
   margin-bottom: 24px;
-  border-bottom: 2px solid #0d7a7a;
+  border-bottom: 2px solid #1d4359;
 }
 .contract-header h2 {
-  font-size: 22px; font-weight: 700; color: #0d7a7a; margin: 0 0 6px;
+  font-size: 22px; font-weight: 700; color: #1d4359; margin: 0 0 6px;
 }
 .contract-no {
   font-size: 12px; color: #9ca3a3; margin: 0;
@@ -454,7 +468,7 @@ onMounted(() => {
   padding: 16px;
 }
 .party-card h4 {
-  font-size: 15px; font-weight: 600; color: #0d7a7a;
+  font-size: 15px; font-weight: 600; color: #1d4359;
   margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e6e6;
 }
 .party-card p {
@@ -467,7 +481,7 @@ onMounted(() => {
 }
 .contract-section h4 {
   font-size: 15px; font-weight: 600; color: #1a1c1c;
-  margin: 0 0 12px; padding-left: 10px; border-left: 3px solid #0d7a7a;
+  margin: 0 0 12px; padding-left: 10px; border-left: 3px solid #1d4359;
 }
 
 .info-grid {
@@ -485,8 +499,8 @@ onMounted(() => {
 .info-item.highlight {
   background: #e8f5f5; border-radius: 6px; padding: 10px 12px;
 }
-.info-item.highlight label { color: #0d7a7a; font-weight: 500; }
-.val-date { color: #0d7a7a !important; font-weight: 600 !important; }
+.info-item.highlight label { color: #1d4359; font-weight: 500; }
+.val-date { color: #1d4359 !important; font-weight: 600 !important; }
 .val-price { color: #c56a62 !important; font-weight: 700 !important; font-size: 16px !important; }
 
 .sign-status-bar {

@@ -195,20 +195,20 @@ onMounted(loadHouse)
   border: none; border-radius: 6px;
   font-size: 12px;
   background: linear-gradient(135deg, #d9f2f2, #e8f5f5);
-  color: #0d7a7a;
+  color: #1d4359;
 }
 .mr-10 { margin-right: 12px; }
 .flex-row { display: flex; align-items: center; }
 
 .add-image-btn {
-  color: #0d7a7a; border-color: #a8d8d8; font-weight: 500;
+  color: #1d4359; border-color: #a8d8d8; font-weight: 500;
   transition: all 200ms ease;
 }
 .add-image-btn:hover {
-  color: #fff; background: #0d7a7a; border-color: #0d7a7a;
+  color: #fff; background: #1d4359; border-color: #1d4359;
 }
 
 .submit-btn { min-width: 130px; }
 .cancel-btn { color: #6b7272; border-color: #e4e8e8; }
-.cancel-btn:hover { color: #0d7a7a; border-color: #0d7a7a; background: rgba(13, 122, 122, 0.04); }
+.cancel-btn:hover { color: #1d4359; border-color: #1d4359; background: rgba(29, 67, 89, 0.04); }
 </style>

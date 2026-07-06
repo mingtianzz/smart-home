@@ -6,6 +6,7 @@ const Review = require('./Review');
 const FinanceRecord = require('./FinanceRecord');
 const OperationLog = require('./OperationLog');
 const Setting = require('./Setting');
+const IncomeUpdateLog = require('./IncomeUpdateLog');
 
 module.exports = {
   User,
@@ -16,4 +17,5 @@ module.exports = {
   FinanceRecord,
   OperationLog,
   Setting,
+  IncomeUpdateLog,
 };

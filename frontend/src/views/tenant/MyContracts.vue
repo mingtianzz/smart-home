@@ -237,7 +237,7 @@ onMounted(loadContracts)
 <style scoped>
 /* ── Table ── */
 .cell-house  { font-weight: 500; color: #1a1c1c; }
-.cell-date   { font-weight: 500; color: #0d7a7a; }
+.cell-date   { font-weight: 500; color: #1d4359; }
 .cell-price  { font-weight: 700; color: #c56a62; }
 
 /* ── Empty ── */
@@ -256,10 +256,10 @@ onMounted(loadContracts)
 
 .contract-header {
   text-align: center; padding-bottom: 20px; margin-bottom: 24px;
-  border-bottom: 2px solid #0d7a7a;
+  border-bottom: 2px solid #1d4359;
 }
 .contract-header h2 {
-  font-size: 22px; font-weight: 700; color: #0d7a7a; margin: 0 0 6px;
+  font-size: 22px; font-weight: 700; color: #1d4359; margin: 0 0 6px;
 }
 .contract-no {
   font-size: 12px; color: #9ca3a3; margin: 0;
@@ -272,7 +272,7 @@ onMounted(loadContracts)
   background: #f7f9f9; border: 1px solid #e2e6e6; border-radius: 8px; padding: 16px;
 }
 .party-card h4 {
-  font-size: 15px; font-weight: 600; color: #0d7a7a;
+  font-size: 15px; font-weight: 600; color: #1d4359;
   margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid #e2e6e6;
 }
 .party-card p { margin: 4px 0; font-size: 13px; display: flex; gap: 8px; }
@@ -281,7 +281,7 @@ onMounted(loadContracts)
 .contract-section { margin-bottom: 20px; }
 .contract-section h4 {
   font-size: 15px; font-weight: 600; color: #1a1c1c;
-  margin: 0 0 12px; padding-left: 10px; border-left: 3px solid #0d7a7a;
+  margin: 0 0 12px; padding-left: 10px; border-left: 3px solid #1d4359;
 }
 
 .info-grid {
@@ -293,8 +293,8 @@ onMounted(loadContracts)
 .info-item.highlight {
   background: #e8f5f5; border-radius: 6px; padding: 10px 12px;
 }
-.info-item.highlight label { color: #0d7a7a; font-weight: 500; }
-.val-date { color: #0d7a7a !important; font-weight: 600 !important; }
+.info-item.highlight label { color: #1d4359; font-weight: 500; }
+.val-date { color: #1d4359 !important; font-weight: 600 !important; }
 .val-price { color: #c56a62 !important; font-weight: 700 !important; font-size: 16px !important; }
 
 .sign-status-bar {

@@ -6,7 +6,6 @@ const financeRecordSchema = new mongoose.Schema({
   contractId: { type: mongoose.Schema.Types.ObjectId, ref: 'Contract', required: true },
   amount: { type: Number, required: true },
   month: { type: String, required: true },
-  status: { type: String, enum: ['paid', 'pending'], default: 'pending' },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

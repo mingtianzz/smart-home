@@ -6,8 +6,8 @@
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#0d7a7a"/>
-                <stop offset="100%" stop-color="#c8943a"/>
+                <stop offset="0%" stop-color="#1d4359"/>
+                <stop offset="100%" stop-color="#3b637a"/>
               </linearGradient>
             </defs>
             <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="url(#logoGrad)" stroke-width="1.8" fill="none"/>
@@ -99,11 +99,11 @@ const avatarText = computed(() => {
 })
 
 const avatarStyle = computed(() => ({
-  background: 'linear-gradient(135deg, #0d7a7a, #2e9e9e)',
+  background: 'linear-gradient(135deg, #1d4359, #3b637a)',
   color: '#fff',
   fontWeight: 600,
   fontSize: '14px',
-  boxShadow: '0 2px 8px rgba(13, 122, 122, 0.25)'
+  boxShadow: '0 2px 8px rgba(29, 67, 89, 0.25)'
 }))
 
 function handleLogout() {
@@ -114,17 +114,16 @@ function handleLogout() {
 
 <style scoped>
 .navbar {
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px) saturate(200%);
   -webkit-backdrop-filter: blur(16px) saturate(200%);
-  border-bottom: 1px solid rgba(200, 148, 58, 0.12);
+  border-bottom: 1px solid rgba(29, 67, 89, 0.10);
   position: sticky;
   top: 0;
   z-index: 100;
   transition: background 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* Subtle bottom gradient accent */
 .navbar::after {
   content: '';
   position: absolute;
@@ -134,8 +133,8 @@ function handleLogout() {
   height: 2px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(13, 122, 122, 0.3) 30%,
-    rgba(200, 148, 58, 0.25) 70%,
+    rgba(29, 67, 89, 0.30) 30%,
+    rgba(200, 148, 58, 0.20) 70%,
     transparent 100%);
   pointer-events: none;
 }
@@ -170,7 +169,7 @@ function handleLogout() {
 .logo-text {
   font-size: 20px;
   font-weight: 700;
-  background: linear-gradient(135deg, #0d7a7a 0%, #096060 100%);
+  background: linear-gradient(135deg, #1d4359 0%, #15334a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -185,7 +184,7 @@ function handleLogout() {
 
 .nav-btn-link {
   font-size: 15px;
-  color: #5c6363;
+  color: #516473;
   padding: 8px 20px;
   border-radius: 8px;
   font-weight: 500;
@@ -193,24 +192,24 @@ function handleLogout() {
 }
 
 .nav-btn-link:hover {
-  color: #0d7a7a;
-  background: rgba(13, 122, 122, 0.06);
+  color: #1d4359;
+  background: rgba(29, 67, 89, 0.06);
 }
 
 .nav-btn-register {
   font-size: 15px;
   color: #fff;
-  background: linear-gradient(135deg, #0d7a7a, #0b6e6e);
+  background: linear-gradient(135deg, #1d4359, #1a3b50);
   padding: 8px 24px;
   border-radius: 8px;
   font-weight: 600;
   transition: all 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  box-shadow: 0 2px 8px rgba(13, 122, 122, 0.25);
+  box-shadow: 0 2px 8px rgba(29, 67, 89, 0.25);
 }
 
 .nav-btn-register:hover {
-  background: linear-gradient(135deg, #0f8a8a, #0d7a7a);
-  box-shadow: 0 4px 16px rgba(13, 122, 122, 0.35);
+  background: linear-gradient(135deg, #23526b, #1d4359);
+  box-shadow: 0 4px 16px rgba(29, 67, 89, 0.35);
   transform: translateY(-1px);
 }
 
@@ -229,7 +228,7 @@ function handleLogout() {
 }
 
 .user-info:hover {
-  background: rgba(13, 122, 122, 0.05);
+  background: rgba(29, 67, 89, 0.05);
 }
 
 .username {
@@ -259,7 +258,7 @@ function handleLogout() {
 
 :deep(.nav-dropdown) {
   border-radius: 12px;
-  border: 1px solid #eff1f1;
+  border: 1px solid #e2e8ec;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
   margin-top: 8px;
 }

@@ -278,7 +278,7 @@ onMounted(loadAppointments)
 .stat-confirmed::before  { background: linear-gradient(90deg, #3ba3a3, #4caf7d); }
 .stat-cancelled::before  { background: linear-gradient(90deg, #9ca3a3, #b8bfbf); }
 .stat-rejected::before   { background: linear-gradient(90deg, #c56a62, #d4807a); }
-.mini-stat:hover { box-shadow: 0 4px 16px rgba(13, 122, 122, 0.06); }
+.mini-stat:hover { box-shadow: 0 4px 16px rgba(29, 67, 89, 0.06); }
 
 .mini-value { font-size: 26px; font-weight: 700; color: #1a1c1c; display: block; line-height: 1.2; }
 .mini-label { font-size: 12px; color: #9ca3a3; margin-top: 4px; display: block; }
@@ -286,7 +286,7 @@ onMounted(loadAppointments)
 /* ── Table ── */
 .cell-house  { font-weight: 500; color: #1a1c1c; }
 .cell-tenant { font-weight: 500; }
-.cell-date   { font-weight: 500; color: #0d7a7a; }
+.cell-date   { font-weight: 500; color: #1d4359; }
 .cell-done   { color: #c0c5c5; }
 .action-btn  { font-weight: 500; border-radius: 6px; }
 

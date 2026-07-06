@@ -134,7 +134,7 @@ onMounted(loadStats)
   overflow: hidden;
 }
 .stat-card:hover {
-  box-shadow: 0 6px 20px rgba(13, 122, 122, 0.06);
+  box-shadow: 0 6px 20px rgba(29, 67, 89, 0.06);
 }
 .stat-card::before {
   content: '';
@@ -143,7 +143,7 @@ onMounted(loadStats)
   width: 100%;
   height: 3px;
 }
-.stat-card-teal::before  { background: linear-gradient(90deg, #0d7a7a, #3ba3a3); }
+.stat-card-teal::before  { background: linear-gradient(90deg, #1d4359, #3ba3a3); }
 .stat-card-green::before { background: linear-gradient(90deg, #3ba3a3, #4caf7d); }
 .stat-card-gold::before  { background: linear-gradient(90deg, #c8943a, #d4a84e); }
 .stat-card-rose::before  { background: linear-gradient(90deg, #c56a62, #d4807a); }
@@ -193,7 +193,7 @@ onMounted(loadStats)
 .area-bar-fill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, #0d7a7a, #3ba3a3);
+  background: linear-gradient(90deg, #1d4359, #3ba3a3);
   transition: width 500ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -206,12 +206,12 @@ onMounted(loadStats)
 }
 .rent-row:last-child { border-bottom: none; }
 .rent-row-highlight {
-  background: linear-gradient(90deg, rgba(13, 122, 122, 0.03), transparent);
+  background: linear-gradient(90deg, rgba(29, 67, 89, 0.03), transparent);
   margin: 0 -20px; padding: 15px 20px; border-radius: 8px;
 }
 .rent-label { font-size: 14px; color: #6b7272; font-weight: 500; }
 .rent-value { font-size: 18px; font-weight: 600; color: #1a1c1c; }
-.rent-value-avg { color: #0d7a7a; font-size: 22px; font-weight: 700; }
+.rent-value-avg { color: #1d4359; font-size: 22px; font-weight: 700; }
 
 .empty-inner { text-align: center; padding: 28px; color: #9ca3a3; font-size: 14px; }
 </style>

@@ -263,13 +263,13 @@ onMounted(() => { loadHouse(); loadReviews() })
   color: #6b7272;
   transition: color 200ms ease;
 }
-.back-btn:hover { color: #0d7a7a; }
+.back-btn:hover { color: #1d4359; }
 
 /* ── Image ── */
 .image-wrapper {
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(13, 122, 122, 0.06);
+  box-shadow: 0 4px 20px rgba(29, 67, 89, 0.06);
 }
 
 .image-frame {
@@ -369,7 +369,7 @@ onMounted(() => { loadHouse(); loadReviews() })
   transition: box-shadow 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .section-card:hover {
-  box-shadow: 0 4px 16px rgba(13, 122, 122, 0.05);
+  box-shadow: 0 4px 16px rgba(29, 67, 89, 0.05);
 }
 .section-card :deep(.el-card__body) { padding: 28px; }
 
@@ -417,7 +417,7 @@ onMounted(() => { loadHouse(); loadReviews() })
   display: inline-block;
   padding: 6px 16px;
   font-size: 13px;
-  color: #0d7a7a;
+  color: #1d4359;
   background: linear-gradient(135deg, #d9f2f2, #e8f5f5);
   border-radius: 7px;
   font-weight: 500;
@@ -437,7 +437,7 @@ onMounted(() => { loadHouse(); loadReviews() })
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d7a7a, #2e9e9e);
+  background: linear-gradient(135deg, #1d4359, #2e9e9e);
   color: #fff;
   display: flex;
   align-items: center;
@@ -445,7 +445,7 @@ onMounted(() => { loadHouse(); loadReviews() })
   font-size: 20px;
   font-weight: 600;
   flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(13, 122, 122, 0.2);
+  box-shadow: 0 2px 10px rgba(29, 67, 89, 0.2);
 }
 .landlord-name  { font-size: 15px; font-weight: 600; color: #1a1c1c; margin-bottom: 2px; }
 .landlord-phone { font-size: 13px; color: #6b7272; }

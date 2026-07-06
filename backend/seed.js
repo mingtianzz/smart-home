@@ -35,7 +35,7 @@ async function seed() {
     }
 
     if (!existingTenant) {
-      const tenant = new User({
+      const tenant1 = new User({
         phone: '13900000001',
         email: 'tenant@example.com',
         name: '张浚杰',
@@ -43,7 +43,27 @@ async function seed() {
         role: 'tenant',
         status: 'active',
       });
-      await tenant.save();
+      await tenant1.save();
+
+      const tenant2 = new User({
+        phone: '13900000003',
+        email: 'tenant2@example.com',
+        name: '张三',
+        passwordHash,
+        role: 'tenant',
+        status: 'active',
+      });
+      await tenant2.save();
+
+      const tenant3 = new User({
+        phone: '13900000004',
+        email: 'tenant3@example.com',
+        name: '李四',
+        passwordHash,
+        role: 'tenant',
+        status: 'active',
+      });
+      await tenant3.save();
     }
 
     if (!existingLandlord) {

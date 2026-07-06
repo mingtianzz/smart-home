@@ -1,0 +1,259 @@
+{
+  "module": "财务管理模块",
+  "version": "1.0.0",
+  "description": "包含收入自动更新、更新记录查询、数据可视化、代收租金移除的测试用例",
+  "testCases": [
+    {
+      "id": "FINANCE-API-001",
+      "category": "收入自动更新 - 合约租金变更",
+      "title": "合同租金修改后，关联的财务记录金额自动同步更新",
+      "preconditions": [
+        "存在已签署的合同（合同ID: CONTRACT-001）",
+        "该合同关联了3条财务记录（月份: 2026-01, 2026-02, 2026-03，金额均为 3000）"
+      ],
+      "steps": [
+        "房东登录系统",
+        "调用 PUT /api/contracts/:id 接口，将租金从 3000 改为 3500",
+        "调用 GET /api/finance 查询该合同的所有财务记录"
+      ],
+      "expectedResults": [
+        "接口返回 200",
+        "所有关联的财务记录金额已从 3000 更新为 3500",
+        "合同租金字段更新为 3500"
+      ],
+      "dataValidation": [
+        "每条记录 oldAmount=3000, newAmount=3500"
+      ]
+    },
+    {
+      "id": "FINANCE-API-002",
+      "category": "收入自动更新 - 变更历史记录",
+      "title": "租金变更后，系统自动生成 IncomeUpdateLog 变更记录",
+      "preconditions": [
+        "执行 FINANCE-API-001 后"
+      ],
+      "steps": [
+        "调用 GET /api/finance/updates?contractId=CONTRACT-001",
+        "查看返回的更新记录列表"
+      ],
+      "expectedResults": [
+        "返回至少 3 条更新记录（对应 3 个月的财务记录）",
+        "每条记录包含: contractId, houseId, month, oldAmount=3000, newAmount=3500, operatorId, createdAt",
+        "记录按时间倒序排列"
+      ]
+    },
+    {
+      "id": "FINANCE-API-003",
+      "category": "收入自动更新 - 不变更不触发",
+      "title": "合同其他字段修改（如押金），不触发收入更新",
+      "preconditions": [
+        "存在已签署的合同",
+        "该合同关联了若干财务记录"
+      ],
+      "steps": [
+        "调用 PUT /api/contracts/:id 仅修改 deposit 字段",
+        "调用 GET /api/finance/updates?contractId=CONTRACT-001"
+      ],
+      "expectedResults": [
+        "接口返回 200",
+        "合同的 deposit 字段被更新",
+        "财务记录金额保持不变",
+        "IncomeUpdateLog 中无新增记录"
+      ]
+    },
+    {
+      "id": "FINANCE-API-004",
+      "category": "收入更新记录查询 - 时间范围筛选",
+      "title": "按时间范围筛选收入更新记录",
+      "preconditions": [
+        "存在跨越不同月份的 IncomeUpdateLog 记录"
+      ],
+      "steps": [
+        "调用 GET /api/finance/updates?startDate=2026-01-01&endDate=2026-03-31",
+        "调用 GET /api/finance/updates?startDate=2026-04-01"
+      ],
+      "expectedResults": [
+        "第一次查询返回 2026-01-01 至 2026-03-31 范围内的记录",
+        "第二次查询返回 2026-04-01 至今的记录",
+        "记录按 createdAt 倒序排列"
+      ]
+    },
+    {
+      "id": "FINANCE-API-005",
+      "category": "收入更新记录查询 - 合同编号筛选",
+      "title": "按合同编号筛选收入更新记录",
+      "preconditions": [
+        "存在多个合同的 IncomeUpdateLog 记录"
+      ],
+      "steps": [
+        "调用 GET /api/finance/updates?contractId=CONTRACT-001"
+      ],
+      "expectedResults": [
+        "返回的记录中 contractId 均为 CONTRACT-001",
+        "返回的记录包含完整的 populate 数据（合同信息、房源信息、操作人姓名）"
+      ]
+    },
+    {
+      "id": "FINANCE-API-006",
+      "category": "图表数据 - 收入统计接口",
+      "title": "按不同粒度获取收入统计数据",
+      "preconditions": [
+        "存在跨越多个月的财务记录"
+      ],
+      "steps": [
+        "调用 GET /api/finance/stats?granularity=month",
+        "调用 GET /api/finance/stats?granularity=month&startMonth=2026-01&endMonth=2026-06",
+        "调用 GET /api/finance/stats?houseId=HOUSE-001"
+      ],
+      "expectedResults": [
+        "返回 chartData 数组，按月份分组统计",
+        "每个数据点包含 period、amount、count 字段",
+        "返回 summary 包含 total（总收入）和 count（总记录数）",
+        "支持 startMonth/endMonth 时间范围筛选",
+        "支持 houseId 房源筛选"
+      ]
+    },
+    {
+      "id": "FINANCE-API-007",
+      "category": "代收租金移除验证",
+      "title": "FinanceRecord 模型不再包含 status 字段",
+      "preconditions": [
+        "数据库连接正常"
+      ],
+      "steps": [
+        "检查 FinanceRecord 数据模型定义",
+        "创建一条新的财务记录",
+        "查询该记录"
+      ],
+      "expectedResults": [
+        "模型定义中不包含 status 字段",
+        "新建记录不包含 status 属性",
+        "已存在的旧记录中 status 字段被 Mongoose 忽略"
+      ]
+    },
+    {
+      "id": "FINANCE-API-008",
+      "category": "代收租金移除验证",
+      "title": "财务列表接口不再返回 status 相关数据",
+      "preconditions": [
+        "存在财务记录"
+      ],
+      "steps": [
+        "调用 GET /api/finance",
+        "检查响应数据结构"
+      ],
+      "expectedResults": [
+        "响应中不包含 status 字段",
+        "前端不再展示「待收租金」「已收租金」统计卡片",
+        "前端统计卡片改为：总收入、记录数、合同数"
+      ]
+    },
+    {
+      "id": "FINANCE-API-009",
+      "category": "添加财务记录 - 自动关联合同",
+      "title": "添加财务记录时自动关联有效合同",
+      "preconditions": [
+        "存在已签署的合同（房源 HOUSE-001）",
+        "该房源存在有效合同"
+      ],
+      "steps": [
+        "调用 POST /api/finance 仅传入 houseId、amount、month（不传 contractId）",
+        "查看返回的财务记录"
+      ],
+      "expectedResults": [
+        "接口返回 201",
+        "返回的记录中 contractId 自动填充为有效合同的 ID",
+        "记录包含 populate 后的合同和房源信息"
+      ]
+    },
+    {
+      "id": "FINANCE-API-010",
+      "category": "添加财务记录 - 无有效合同",
+      "title": "房源没有有效合同时添加财务记录失败",
+      "preconditions": [
+        "存在房源但没有有效合同"
+      ],
+      "steps": [
+        "调用 POST /api/finance 传入该房源 ID、金额、月份"
+      ],
+      "expectedResults": [
+        "接口返回 400",
+        "错误提示：'该房源没有有效的合同，请先创建合同'"
+      ]
+    },
+    {
+      "id": "FINANCE-FRONTEND-001",
+      "category": "前端 - 折线图",
+      "title": "财务管理页面右下角展示收入趋势折线图",
+      "preconditions": [
+        "房东登录",
+        "存在财务记录数据"
+      ],
+      "steps": [
+        "导航到 /landlord/finance",
+        "查看页面右下角区域"
+      ],
+      "expectedResults": [
+        "折线图正确渲染，X 轴为时间，Y 轴为收入金额",
+        "图表包含平滑曲线和面积填充效果",
+        "鼠标悬停显示 tooltip 提示收入金额"
+      ]
+    },
+    {
+      "id": "FINANCE-FRONTEND-002",
+      "category": "前端 - 折线图粒度切换",
+      "title": "折线图支持月/季/年粒度切换",
+      "preconditions": [
+        "房东登录，在财务管理页面"
+      ],
+      "steps": [
+        "点击粒度切换按钮「月」",
+        "点击粒度切换按钮「季」",
+        "点击粒度切换按钮「年」"
+      ],
+      "expectedResults": [
+        "切换到「月」时，按月份分组展示数据",
+        "切换到「季」时，按季度分组展示数据",
+        "切换到「年」时，按年份分组展示数据",
+        "切换后图表数据动态更新"
+      ]
+    },
+    {
+      "id": "FINANCE-FRONTEND-003",
+      "category": "前端 - 更新记录",
+      "title": "收入更新记录模块可展开/收起并按条件筛选",
+      "preconditions": [
+        "房东登录，在财务管理页面"
+      ],
+      "steps": [
+        "点击「收入更新记录」的展开按钮",
+        "选择时间范围筛选",
+        "输入合同编号筛选",
+        "查看更新记录表格"
+      ],
+      "expectedResults": [
+        "表格显示更新记录，包含：合同、房源、账期、更新前金额、更新后金额、操作人、更新时间",
+        "按时间范围筛选生效",
+        "按合同编号筛选生效",
+        "每条记录的合同编号可点击查看合同详情"
+      ]
+    },
+    {
+      "id": "FINANCE-FRONTEND-004",
+      "category": "前端 - 合同详情入口",
+      "title": "点击合同编号可查看完整合同信息",
+      "preconditions": [
+        "房东登录，在财务管理页面"
+      ],
+      "steps": [
+        "在财务记录表格中点击某个合同编号",
+        "在更新记录表格中点击某个合同编号"
+      ],
+      "expectedResults": [
+        "弹出合同详情对话框",
+        "展示完整合同信息：编号、房源、地址、租客、电话、起止日期、月租金、押金、状态",
+        "有房源图片时展示图片预览"
+      ]
+    }
+  ]
+}
