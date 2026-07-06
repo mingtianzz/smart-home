@@ -297,6 +297,46 @@ router.put('/:id/sign', authenticate, async (req, res, next) => {
     }
 
     await contract.save();
+
+    // Lock and unpublish the house when contract becomes signed
+    if (contract.status === 'signed') {
+      await House.findByIdAndUpdate(contract.houseId, { status: 'offline' });
+
+      // Auto-create finance records when contract becomes signed
+      const start = new Date(contract.startDate);
+      const end = new Date(contract.endDate);
+      const records = [];
+
+      // Generate one record per month from start to end
+      const current = new Date(start.getFullYear(), start.getMonth(), 1);
+      const last = new Date(end.getFullYear(), end.getMonth(), 1);
+
+      while (current <= last) {
+        const monthStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+
+        // Skip if record already exists for this contract + month
+        const exists = await FinanceRecord.findOne({
+          contractId: contract._id,
+          month: monthStr,
+        });
+        if (!exists) {
+          records.push({
+            landlordId: contract.landlordId,
+            houseId: contract.houseId,
+            contractId: contract._id,
+            amount: contract.rent,
+            month: monthStr,
+          });
+        }
+
+        current.setMonth(current.getMonth() + 1);
+      }
+
+      if (records.length > 0) {
+        await FinanceRecord.insertMany(records);
+      }
+    }
+
     const populated = await Contract.findById(contract._id)
       .populate('tenantId', 'name phone')
       .populate('landlordId', 'name phone')

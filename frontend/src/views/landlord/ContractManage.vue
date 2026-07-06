@@ -358,7 +358,11 @@ async function viewContract(id) {
 
 async function signContract(id) {
   try {
-    await ElMessageBox.confirm('确认签署该合同？签署后不可撤销。', '提示')
+    await ElMessageBox.confirm(
+      '签署后该房源将立即锁定并下架，不再对外展示。<br>同时合同将自动生成每月收入记录。',
+      '签署确认',
+      { confirmButtonText: '确定签署', cancelButtonText: '取消', dangerouslyUseHTMLString: true }
+    )
     await request.put(`/contracts/${id}/sign`)
     ElMessage.success('合同签署成功')
     loadContracts()

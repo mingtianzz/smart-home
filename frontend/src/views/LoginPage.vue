@@ -2,7 +2,7 @@
   <div class="box">
     <div class="content">
       <div class="login-wrapper">
-        <h1>登录</h1>
+        <h1>{{ pageTitle }}</h1>
         <div class="login-form">
           <el-form
             ref="formRef"
@@ -18,25 +18,34 @@
               <span>密码</span>
               <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" class="input-item" />
             </div>
-            <el-button type="primary" native-type="submit" :loading="loading" class="login-btn">登 录</el-button>
+            <el-button type="primary" native-type="submit" :loading="loading" class="login-btn">{{ btnText }}</el-button>
           </el-form>
         </div>
-        <div class="divider">
-          <span class="line"></span>
-          <span class="divider-text">其他方式登录</span>
-          <span class="line"></span>
-        </div>
-        <div class="other-login-wrapper">
-          <div class="other-login-item" @click="quickLogin('landlord')">
-            <el-icon :size="28" color="#d4943a"><HomeFilled /></el-icon>
-            <span class="other-label">房东</span>
+
+        <!-- Show "other login" section only on the default login page -->
+        <template v-if="!routeRole">
+          <div class="divider">
+            <span class="line"></span>
+            <span class="divider-text">其他方式登录</span>
+            <span class="line"></span>
           </div>
-          <div class="other-login-item" @click="quickLogin('admin')">
-            <el-icon :size="28" color="#e74c3c"><Setting /></el-icon>
-            <span class="other-label">管理员</span>
+          <div class="other-login-wrapper">
+            <div class="other-login-item" @click="goToRoleLogin('landlord')">
+              <el-icon :size="28" color="#d4943a"><HomeFilled /></el-icon>
+              <span class="other-label">房东</span>
+            </div>
+            <div class="other-login-item" @click="goToRoleLogin('admin')">
+              <el-icon :size="28" color="#e74c3c"><Setting /></el-icon>
+              <span class="other-label">管理员</span>
+            </div>
           </div>
+        </template>
+
+        <!-- Back link on role-specific pages -->
+        <div v-if="routeRole" class="form-footer">
+          <router-link to="/login">返回普通登录</router-link>
         </div>
-        <div class="form-footer">
+        <div v-else class="form-footer">
           还没有账号？<router-link to="/register">立即注册</router-link>
         </div>
       </div>
@@ -45,21 +54,40 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { HomeFilled, Setting } from '@element-plus/icons-vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const formRef = ref(null)
 const loading = ref(false)
 
+// Get role from route param (e.g. /login/landlord, /login/admin)
+const roleMap = { landlord: '房东', admin: '管理员' }
+const routeRole = computed(() => route.params.role)
+
+const pageTitle = computed(() => {
+  if (!routeRole.value) return '登录'
+  return roleMap[routeRole.value] + '登录'
+})
+
+const btnText = computed(() => {
+  if (!routeRole.value) return '登 录'
+  return roleMap[routeRole.value] + '登录'
+})
+
+const defaultRole = computed(() => {
+  return routeRole.value || 'tenant'
+})
+
 const form = reactive({
   phone: '',
   password: '',
-  role: 'tenant'
+  role: defaultRole.value
 })
 
 const rules = {
@@ -67,18 +95,15 @@ const rules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 }
 
+// Navigate to role-specific login page
+function goToRoleLogin(role) {
+  router.push(`/login/${role}`)
+}
+
 async function handleLogin() {
   const valid = await formRef.value.validate().catch(() => {})
   if (!valid) return
-  await doLogin()
-}
-
-async function quickLogin(role) {
-  if (!form.phone || !form.password) {
-    ElMessage.warning('请先填写手机号和密码')
-    return
-  }
-  form.role = role
+  form.role = defaultRole.value
   await doLogin()
 }
 
