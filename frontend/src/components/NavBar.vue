@@ -2,7 +2,7 @@
   <header class="navbar">
     <div class="navbar-inner">
       <router-link to="/" class="logo">
-        <span class="logo-text">租房客</span>
+        <span class="logo-text">万家安良居</span>
       </router-link>
 
       <nav class="nav-links">
@@ -157,7 +157,6 @@ function handleLogout() {
 .logo-text {
   font-size: 32px;
   font-weight: 400;
-  font-family: 'Ma Shan Zheng', cursive, serif;
   background: linear-gradient(135deg, #1d4359 0%, #15334a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
