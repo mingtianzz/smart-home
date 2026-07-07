@@ -26,6 +26,14 @@
           <el-input v-model="profile.email" :disabled="!editable" placeholder="请输入邮箱" />
         </el-form-item>
 
+        <el-form-item label="性别">
+          <el-select v-model="profile.gender" :disabled="!editable" placeholder="请选择性别" style="width:100%">
+            <el-option label="男" value="male" />
+            <el-option label="女" value="female" />
+            <el-option label="其他" value="other" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="角色">
           <el-tag type="info" size="small">{{ roleText }}</el-tag>
         </el-form-item>
@@ -77,6 +85,7 @@ const profile = ref({
   name: '',
   phone: '',
   email: '',
+  gender: '',
   role: '',
   createdAt: ''
 })
@@ -140,6 +149,7 @@ async function loadProfile() {
     name: localUser.name || '',
     phone: localUser.phone || '',
     email: localUser.email || '',
+    gender: localUser.gender || '',
     role: localUser.role || '',
     createdAt: localUser.createdAt || ''
   }
@@ -149,6 +159,7 @@ async function loadProfile() {
     if (user.name) profile.value.name = user.name
     if (user.phone) profile.value.phone = user.phone
     if (user.email) profile.value.email = user.email
+    if (user.gender !== undefined) profile.value.gender = user.gender
     if (user.role) profile.value.role = user.role
     if (user.createdAt) profile.value.createdAt = user.createdAt
   } catch {
@@ -169,7 +180,8 @@ async function saveProfile() {
       const res = await request.put('/auth/profile', {
         name: profile.value.name,
         phone: profile.value.phone,
-        email: profile.value.email
+        email: profile.value.email,
+        gender: profile.value.gender
       })
       ElMessage.success(res.message || '保存成功')
       if (res.user) {

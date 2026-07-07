@@ -43,6 +43,7 @@ async function seedAdmin() {
     console.log('━━━━━━━━━━━━━━━━━━━━━');
 
     await mongoose.disconnect();
+    process.exit(0);
   } catch (err) {
     console.error('创建失败:', err);
     process.exit(1);

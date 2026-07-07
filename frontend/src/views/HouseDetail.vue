@@ -190,6 +190,9 @@
         <el-form-item label="看房时间">
           <el-time-picker v-model="appointmentForm.time" placeholder="选择时间" style="width:100%" />
         </el-form-item>
+        <el-form-item label="联系方式">
+          <el-input v-model="appointmentForm.contact" placeholder="请输入您的联系电话" />
+        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="appointmentForm.note" type="textarea" :rows="3" placeholder="可填写您的特殊需求" />
         </el-form-item>
@@ -291,12 +294,14 @@ function handleAppointment() {
 
 async function submitAppointment() {
   if (!appointmentForm.value.date || !appointmentForm.value.time) { ElMessage.warning('请选择看房日期和时间'); return }
+  if (!appointmentForm.value.contact) { ElMessage.warning('请填写联系方式'); return }
   apptLoading.value = true
   try {
     const d = appointmentForm.value.date.toISOString().split('T')[0]
     const t = appointmentForm.value.time.toTimeString().split(' ')[0]
-    await request.post('/appointments', { houseId: route.params.id, visitDate: d, visitTime: t, contact: appointmentForm.value.note || '', remark: appointmentForm.value.note || '' })
+    await request.post('/appointments', { houseId: route.params.id, visitDate: d, visitTime: t, contact: appointmentForm.value.contact, remark: appointmentForm.value.note || '' })
     ElMessage.success('预约成功，等待房东确认'); appointmentDialog.value = false
+    appointmentForm.value = { date: null, time: null, contact: '', note: '' }
   } catch {} finally { apptLoading.value = false }
 }
 
