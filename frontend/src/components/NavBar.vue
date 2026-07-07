@@ -2,19 +2,7 @@
   <header class="navbar">
     <div class="navbar-inner">
       <router-link to="/" class="logo">
-        <span class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#1d4359"/>
-                <stop offset="100%" stop-color="#3b637a"/>
-              </linearGradient>
-            </defs>
-            <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="url(#logoGrad)" stroke-width="1.8" fill="none"/>
-            <path d="M9 21V13H15V21" stroke="url(#logoGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="logo-text">智慧房屋租赁</span>
+        <span class="logo-text">租房客</span>
       </router-link>
 
       <nav class="nav-links">
@@ -167,13 +155,14 @@ function handleLogout() {
 }
 
 .logo-text {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 400;
+  font-family: 'Ma Shan Zheng', cursive, serif;
   background: linear-gradient(135deg, #1d4359 0%, #15334a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.06em;
 }
 
 .nav-links {

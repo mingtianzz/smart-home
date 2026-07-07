@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const House = require('../models/House');
+const Contract = require('../models/Contract');
 const OperationLog = require('../models/OperationLog');
 const { authenticate, authorize } = require('../middleware/auth');
 
@@ -249,6 +250,18 @@ router.put('/:id/status', authenticate, authorize('landlord'), async (req, res, 
     }
     if (house.landlordId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: '无权操作此房源' });
+    }
+
+    // 上架前检查是否有未到期的合同
+    if (status === 'approved') {
+      const activeContract = await Contract.findOne({
+        houseId: req.params.id,
+        status: 'signed',
+        endDate: { $gte: new Date() },
+      });
+      if (activeContract) {
+        return res.status(400).json({ message: '该房源存在未到期的有效合同，无法上架' });
+      }
     }
 
     house.status = status;

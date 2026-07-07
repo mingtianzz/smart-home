@@ -1,9 +1,11 @@
 /* ============================================================
-   Design System — 智慧房屋租赁系统 · 深青风格
+   Design System — 租房客 · 深青风格
    Primary:  #1d4359  (深青蓝, 来自 regist 示例)
    Accent:   #3b4859  (按钮色)
-   Surface:  warm off-white
    ============================================================ */
+
+/* ── Google Fonts: 毛笔字体 ── */
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
 
 /* --- Element Plus Theme Overrides --- */
 :root {

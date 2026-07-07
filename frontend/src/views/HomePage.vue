@@ -148,7 +148,7 @@ const slides = [
   { image: '/carousel/3.png', title: '专业租赁服务', subtitle: '在线预约看房，快速签约入住' },
   { image: '/carousel/4.png', title: '安心租房保障', subtitle: '实名认证房东，真实房源信息' },
   { image: '/carousel/5.png', title: '便捷租房体验', subtitle: '随时随地在线找房，轻松安家' },
-  { image: '/carousel/6.png', title: '智慧租赁平台', subtitle: '房东租客直连，省去中介费用' },
+  { image: '/carousel/6.png', title: '租房客平台', subtitle: '房东租客直连，省去中介费用' },
 ]
 
 const currentIndex = ref(0)

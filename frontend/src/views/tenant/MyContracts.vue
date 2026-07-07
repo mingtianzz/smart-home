@@ -42,6 +42,11 @@
             @click="signContract(row._id)"
           >签署</el-button>
           <el-button
+            v-if="row.status === 'pending_sign' && !row.signedByTenant"
+            type="danger" size="small"
+            @click="rejectContract(row._id)"
+          >拒绝</el-button>
+          <el-button
             v-if="row.status === 'pending_sign' && row.signedByTenant"
             size="small" disabled
           >已签署</el-button>
@@ -159,6 +164,10 @@
         <el-button @click="detailVisible = false">关闭</el-button>
         <el-button
           v-if="detailContract && detailContract.status === 'pending_sign' && !detailContract.signedByTenant"
+          type="danger" @click="rejectFromDetail"
+        >拒绝合同</el-button>
+        <el-button
+          v-if="detailContract && detailContract.status === 'pending_sign' && !detailContract.signedByTenant"
           type="success" @click="signFromDetail"
         >签署合同</el-button>
       </template>
@@ -229,6 +238,25 @@ async function signContract(id) {
 async function signFromDetail() {
   if (!detailContract.value) return
   await signContract(detailContract.value._id)
+}
+
+async function rejectContract(id) {
+  try {
+    await ElMessageBox.confirm('确定拒绝该合同？拒绝后甲方签署状态将被清空，合同将回到草稿状态。', '提示', { confirmButtonText: '确定拒绝', type: 'warning' })
+    await request.put(`/contracts/${id}/reject`)
+    ElMessage.success('已拒绝合同')
+    loadContracts()
+    if (detailVisible.value && detailContract.value?._id === id) {
+      detailVisible.value = false
+    }
+  } catch (err) {
+    if (err !== 'cancel') console.error('拒绝合同失败:', err)
+  }
+}
+
+async function rejectFromDetail() {
+  if (!detailContract.value) return
+  await rejectContract(detailContract.value._id)
 }
 
 onMounted(loadContracts)

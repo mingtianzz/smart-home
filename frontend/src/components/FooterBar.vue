@@ -6,7 +6,7 @@
           <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="#95b0c2" stroke-width="1.5" fill="none"/>
           <path d="M9 21V13H15V21" stroke="#95b0c2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>{{ year }} 智慧房屋租赁系统</span>
+        <span>{{ year }} 租房客</span>
       </div>
       <div class="footer-divider"></div>
       <div class="footer-tagline">专业 · 可信赖 · 高效</div>
