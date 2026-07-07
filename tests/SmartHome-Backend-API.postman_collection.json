@@ -1,0 +1,1875 @@
+{
+  "info": {
+    "name": "SmartHome Backend API - 功能测试",
+    "description": "智慧房源后端API完整功能测试集合\n覆盖本次PR合并后的所有后端变更：\n- 合同模块：创建/签署/更新租金/终止\n- 财务模块：收入统计/更新记录/自动关联合同\n- 级联流程：签署→自动生成财务记录→修改租金→级联更新→变更日志\n\n⚠️ 使用前请先执行:\n  cd backend && node seed.js\n  cd backend && node seed-houses.js\n  cd backend && node seed-contracts.js\n\n默认测试账号:\n  房东: 13900000002 / 123456\n  租户: 13900000001 / 123456\n  租户2: 13900000003 / 123456\n\nBase URL: http://localhost:3000/api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "landlordToken",
+      "value": "",
+      "type": "string",
+      "description": "房东登录后自动填充"
+    },
+    {
+      "key": "tenantToken",
+      "value": "",
+      "type": "string",
+      "description": "租户登录后自动填充"
+    },
+    {
+      "key": "tenant2Token",
+      "value": "",
+      "type": "string",
+      "description": "租户2(张三)登录后自动填充"
+    },
+    {
+      "key": "contractId",
+      "value": "",
+      "type": "string",
+      "description": "测试用合同ID，运行时动态填充"
+    },
+    {
+      "key": "houseId",
+      "value": "",
+      "type": "string",
+      "description": "测试用房源ID，运行时动态填充"
+    },
+    {
+      "key": "tenantId",
+      "value": "",
+      "type": "string",
+      "description": "租户ID"
+    },
+    {
+      "key": "financeRecordId",
+      "value": "",
+      "type": "string",
+      "description": "财务记录ID"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "健康检查",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('响应包含status=ok', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.status).to.eql('ok');",
+                  "  pm.expect(json).to.have.property('time');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 认证模块 (Auth)",
+      "item": [
+        {
+          "name": "1.1 房东登录 (获取token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('响应包含token和用户信息', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('token');",
+                  "  pm.expect(json).to.have.property('user');",
+                  "  pm.expect(json.user.role).to.eql('landlord');",
+                  "  pm.expect(json.message).to.eql('登录成功');",
+                  "});",
+                  "// 保存landlord token",
+                  "const token = pm.response.json().token;",
+                  "pm.collectionVariables.set('landlordToken', token);",
+                  "console.log('✅ 房东Token已保存');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"123456\",\n  \"role\": \"landlord\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.2 租户登录 (获取token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('角色为tenant', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.user.role).to.eql('tenant');",
+                  "});",
+                  "pm.collectionVariables.set('tenantToken', pm.response.json().token);",
+                  "console.log('✅ 租户Token已保存');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000001\",\n  \"password\": \"123456\",\n  \"role\": \"tenant\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.3 租户2(张三)登录",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tenant2Token', pm.response.json().token);",
+                  "console.log('✅ 租户2 Token已保存');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000003\",\n  \"password\": \"123456\",\n  \"role\": \"tenant\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.4 获取当前用户信息 (GET /auth/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回用户完整信息', () => {",
+                  "  const { user } = pm.response.json();",
+                  "  pm.expect(user).to.include.all.keys('id', 'name', 'role', 'phone', 'email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "1.5 登录失败 - 错误密码",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 401', () => pm.response.to.have.status(401));",
+                  "pm.test('提示账号或密码错误', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('错误');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"wrongpassword\",\n  \"role\": \"landlord\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.6 登录失败 - 角色不匹配",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 401', () => pm.response.to.have.status(401));",
+                  "pm.test('提示角色选择错误', () => {",
+                  "  pm.expect(pm.response.json().message).to.eql('角色选择错误');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13900000002\",\n  \"password\": \"123456\",\n  \"role\": \"tenant\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.7 未认证访问受保护接口 (应返回401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 401', () => pm.response.to.have.status(401));",
+                  "pm.test('提示请先登录', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('登录');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 合同模块 (Contracts) - 核心变更",
+      "description": "测试本次PR的核心合同API变更:\n- 创建合同\n- 签署合同（自动生成财务记录 + 锁定房源）\n- 更新合同租金（级联更新财务记录 + 记录变更日志）\n- 终止合同",
+      "item": [
+        {
+          "name": "📋 2.0 前置准备 - 获取房源和租户列表",
+          "item": [
+            {
+              "name": "2.0.1 获取房源列表 (获取houseId)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                      "pm.test('返回房源数组', () => {",
+                      "  const json = pm.response.json();",
+                      "  if (Array.isArray(json)) {",
+                      "    pm.expect(json.length).to.be.greaterThan(0);",
+                      "    pm.collectionVariables.set('houseId', json[0]._id);",
+                      "    console.log('✅ houseId:', json[0]._id, json[0].title);",
+                      "  } else {",
+                      "    pm.expect(json.houses).to.be.an('array');",
+                      "    if (json.houses.length > 0) {",
+                      "      pm.collectionVariables.set('houseId', json.houses[0]._id);",
+                      "      console.log('✅ houseId:', json.houses[0]._id);",
+                      "    }",
+                      "  }",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/houses",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{landlordToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "2.0.2 获取已确认预约租户列表",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                      "const tenants = pm.response.json();",
+                      "if (Array.isArray(tenants) && tenants.length > 0) {",
+                      "  pm.collectionVariables.set('tenantId', tenants[0]._id);",
+                      "  console.log('✅ tenantId:', tenants[0]._id, tenants[0].name);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/contracts/landlord/tenants",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{landlordToken}}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.1 创建合同 (POST /contracts) [新增]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 201', () => pm.response.to.have.status(201));",
+                  "pm.test('合同状态为draft', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.status).to.eql('draft');",
+                  "  pm.expect(json).to.have.property('_id');",
+                  "  pm.expect(json).to.have.property('rent');",
+                  "  pm.expect(json).to.have.property('deposit');",
+                  "  pm.expect(json.tenantId).to.be.an('object');",
+                  "  pm.expect(json.landlordId).to.be.an('object');",
+                  "  pm.expect(json.houseId).to.be.an('object');",
+                  "  // 保存合同ID供后续测试使用",
+                  "  pm.collectionVariables.set('contractId', json._id);",
+                  "  console.log('✅ 合同ID:', json._id, '状态:', json.status);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 动态设置起止日期",
+                  "const start = new Date();",
+                  "start.setDate(start.getDate() + 1);",
+                  "const end = new Date(start);",
+                  "end.setFullYear(end.getFullYear() + 1);",
+                  "pm.variables.set('contractStartDate', start.toISOString().split('T')[0]);",
+                  "pm.variables.set('contractEndDate', end.toISOString().split('T')[0]);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/contracts",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"houseId\": \"{{houseId}}\",\n  \"startDate\": \"{{contractStartDate}}\",\n  \"endDate\": \"{{contractEndDate}}\",\n  \"rent\": 3000,\n  \"deposit\": 3000\n}"
+            }
+          }
+        },
+        {
+          "name": "2.2 创建合同 - 缺少必填字段 (期望400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 400', () => pm.response.to.have.status(400));",
+                  "pm.test('提示填写必填字段', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('必填');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/contracts",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"startDate\": \"2026-07-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2.3 房东签署合同 (PUT /contracts/:id/sign) [修改 - 新增自动生成财务记录]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('房东已签署', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.signedByLandlord).to.be.true;",
+                  "  pm.expect(json.status).to.match(/pending_sign|signed/);",
+                  "  console.log('✅ 签署后状态:', json.status);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}/sign",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.4 租户签署合同 (双方签署完成 → 自动生成财务记录) [关键测试]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('双方已签 → 状态为signed → 自动创建财务记录', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.signedByTenant).to.be.true;",
+                  "  pm.expect(json.signedByLandlord).to.be.true;",
+                  "  pm.expect(json.status).to.eql('signed');",
+                  "  console.log('✅ 合同已签署:', json._id);",
+                  "});",
+                  "// 保存合同ID到环境变量",
+                  "pm.collectionVariables.set('contractId', pm.response.json()._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}/sign",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.5 验证：签署后自动生成财务记录 (GET /finance) [验证2.4]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('✅ 自动生成了按月财务记录', () => {",
+                  "  const records = pm.response.json();",
+                  "  pm.expect(Array.isArray(records)).to.be.true;",
+                  "  // 根据合同周期，应该有12条记录（1年）",
+                  "  console.log('📊 自动生成财务记录数:', records.length);",
+                  "  if (records.length > 0) {",
+                  "    pm.collectionVariables.set('financeRecordId', records[0]._id);",
+                  "    pm.expect(records[0]).to.have.property('amount');",
+                  "    pm.expect(records[0]).to.have.property('month');",
+                  "    pm.expect(records[0]).to.have.property('contractId');",
+                  "    console.log('  首条: month=' + records[0].month + ' amount=' + records[0].amount);",
+                  "  }",
+                  "});",
+                  "pm.test('不包含status字段', () => {",
+                  "  const records = pm.response.json();",
+                  "  if (records.length > 0) {",
+                  "    pm.expect(records[0]).to.not.have.property('status');",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.6 验证：签署后房源被锁定 (GET /houses) [验证2.4-副作用]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('已签署合同的房源状态应为offline', () => {",
+                  "  const data = pm.response.json();",
+                  "  const houses = Array.isArray(data) ? data : (data.houses || []);",
+                  "  const contractHouse = houses.find(h => h._id === pm.collectionVariables.get('houseId'));",
+                  "  if (contractHouse) {",
+                  "    console.log('房源状态:', contractHouse.status, '(期望: offline)');",
+                  "    pm.expect(contractHouse.status).to.eql('offline');",
+                  "  } else {",
+                  "    console.log('⚠️ 未找到该房源(可能不在第一页)');",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/houses",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.7 获取合同详情 (GET /contracts/:id)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回完整合同信息（含populate）', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.tenantId).to.be.an('object');",
+                  "  pm.expect(json.landlordId).to.be.an('object');",
+                  "  pm.expect(json.houseId).to.be.an('object');",
+                  "  pm.expect(json.tenantId).to.have.property('name');",
+                  "  pm.expect(json.tenantId).to.have.property('phone');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/contracts/{{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.8 获取房东合同列表 (GET /contracts/manage)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回contracts数组', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('contracts');",
+                  "  pm.expect(json.contracts).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/contracts/manage",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.9 租户查看我的合同 (GET /contracts/my)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回租户自己的合同', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('contracts');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/contracts/my",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.10 ⭐ 更新合同租金 → 级联更新财务记录 (PUT /contracts/:id) [核心新功能]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('租金已更新为3500', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.rent).to.eql(3500);",
+                  "  console.log('✅ 合同租金: 3000 → 3500');",
+                  "});",
+                  "pm.test('响应包含完整populate数据', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.tenantId).to.be.an('object');",
+                  "  pm.expect(json.houseId).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rent\": 3500\n}"
+            }
+          }
+        },
+        {
+          "name": "2.11 验证：租金变更后财务记录自动更新 [验证2.10级联]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('所有关联财务记录金额已从3000更新为3500', () => {",
+                  "  const records = pm.response.json();",
+                  "  const contractId = pm.collectionVariables.get('contractId');",
+                  "  const related = records.filter(r => {",
+                  "    const cid = typeof r.contractId === 'object' ? r.contractId._id : r.contractId;",
+                  "    return cid === contractId;",
+                  "  });",
+                  "  console.log('📊 级联更新的记录数:', related.length);",
+                  "  related.forEach(r => {",
+                  "    const mid = typeof r.month === 'object' ? r.month._id : r.month;",
+                  "    console.log('  ' + (mid || r.month) + ' = ' + r.amount);",
+                  "    pm.expect(r.amount).to.eql(3500);",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.12 验证：IncomeUpdateLog 变更记录已生成 [验证2.10日志]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('变更日志已生成，内容正确', () => {",
+                  "  const updates = pm.response.json();",
+                  "  pm.expect(Array.isArray(updates)).to.be.true;",
+                  "  pm.expect(updates.length).to.be.greaterThan(0);",
+                  "  console.log('📝 变更日志记录数:', updates.length);",
+                  "  updates.slice(0, 3).forEach(log => {",
+                  "    console.log('  month=' + log.month + ' oldAmount=' + log.oldAmount + ' → newAmount=' + log.newAmount);",
+                  "    pm.expect(log.oldAmount).to.eql(3000);",
+                  "    pm.expect(log.newAmount).to.eql(3500);",
+                  "    pm.expect(log).to.have.property('operatorId');",
+                  "    pm.expect(log).to.have.property('houseId');",
+                  "    pm.expect(log).to.have.property('createdAt');",
+                  "    // 验证populate",
+                  "    if (log.contractId && typeof log.contractId === 'object') {",
+                  "      pm.expect(log.contractId).to.have.property('rent');",
+                  "    }",
+                  "    if (log.operatorId && typeof log.operatorId === 'object') {",
+                  "      pm.expect(log.operatorId).to.have.property('name');",
+                  "    }",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/updates?contractId={{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "2.13 仅修改押金 → 不触发财务记录更新 [验证隔离性]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('押金更新为4000', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.deposit).to.eql(4000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deposit\": 4000\n}"
+            }
+          }
+        },
+        {
+          "name": "2.14 更新合同 - 无变更字段 (期望400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 400', () => pm.response.to.have.status(400));",
+                  "pm.test('提示没有需要更新的字段', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('没有需要更新的字段');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rent\": 3500,\n  \"deposit\": 4000\n}"
+            }
+          }
+        },
+        {
+          "name": "2.15 终止合同 (PUT /contracts/:id/terminate)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('合同状态变为terminated', () => {",
+                  "  pm.expect(pm.response.json().status).to.eql('terminated');",
+                  "  console.log('✅ 合同已终止');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}/terminate",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 财务模块 (Finance) - 核心变更",
+      "description": "测试本次PR的核心财务API变更:\n- GET /finance (移除status字段，新增contractId.rent populate)\n- GET /finance/stats (新增：图表数据统计)\n- GET /finance/updates (新增：收入变更历史)\n- POST /finance (修改：不再需要contractId，自动查找有效合同)",
+      "item": [
+        {
+          "name": "💰 3.0 前置准备 - 创建新合同并签署 (生成财务数据)",
+          "item": [
+            {
+              "name": "3.0.1 创建新合同用于财务测试",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('状态码 201', () => pm.response.to.have.status(201));",
+                      "const contract = pm.response.json();",
+                      "pm.collectionVariables.set('contractId', contract._id);",
+                      "pm.collectionVariables.set('houseId', contract.houseId._id || contract.houseId);",
+                      "console.log('✅ 新合同:', contract._id, 'houseId:', pm.collectionVariables.get('houseId'));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/contracts",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{landlordToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"houseId\": \"{{houseId}}\",\n  \"startDate\": \"2026-07-01\",\n  \"endDate\": \"2026-12-31\",\n  \"rent\": 2500,\n  \"deposit\": 2500\n}"
+                }
+              }
+            },
+            {
+              "name": "3.0.2 房东签署合同",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('状态码 200', () => pm.response.to.have.status(200));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/contracts/{{contractId}}/sign",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{landlordToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "3.0.3 租户签署合同 (触发自动财务记录生成)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                      "pm.test('合同已签署 → 自动生成6条财务记录', () => {",
+                      "  pm.expect(pm.response.json().status).to.eql('signed');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/contracts/{{contractId}}/sign",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{tenantToken}}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.1 获取财务记录列表 (GET /finance) [修改 - 不含status字段]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回数组且不包含status字段', () => {",
+                  "  const records = pm.response.json();",
+                  "  pm.expect(Array.isArray(records)).to.be.true;",
+                  "  if (records.length > 0) {",
+                  "    pm.expect(records[0]).to.not.have.property('status');",
+                  "    console.log('✅ 确认: 财务记录无status字段');",
+                  "  }",
+                  "});",
+                  "pm.test('contractId包含rent字段', () => {",
+                  "  const records = pm.response.json();",
+                  "  if (records.length > 0 && records[0].contractId) {",
+                  "    pm.expect(records[0].contractId).to.have.property('rent');",
+                  "    console.log('✅ contractId.rent =', records[0].contractId.rent);",
+                  "  }",
+                  "});",
+                  "pm.test('houseId包含title和address', () => {",
+                  "  const records = pm.response.json();",
+                  "  if (records.length > 0 && records[0].houseId) {",
+                  "    pm.expect(records[0].houseId).to.have.property('title');",
+                  "    pm.expect(records[0].houseId).to.have.property('address');",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.2 按月筛选财务记录 (GET /finance?month=)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回的记录都在指定月份', () => {",
+                  "  const records = pm.response.json();",
+                  "  records.forEach(r => {",
+                  "    pm.expect(r.month).to.eql('2026-07');",
+                  "  });",
+                  "  console.log('✅ 2026-07月记录数:', records.length);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance?month=2026-07",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.3 ⭐ 收入统计图表 (GET /finance/stats) [新接口]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回chartData和summary', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('chartData');",
+                  "  pm.expect(json).to.have.property('summary');",
+                  "  pm.expect(json.chartData).to.be.an('array');",
+                  "});",
+                  "pm.test('chartData元素包含period/amount/count', () => {",
+                  "  const { chartData } = pm.response.json();",
+                  "  if (chartData.length > 0) {",
+                  "    const point = chartData[0];",
+                  "    pm.expect(point).to.have.property('period');",
+                  "    pm.expect(point).to.have.property('amount');",
+                  "    pm.expect(point).to.have.property('count');",
+                  "    console.log('📊 图表数据点数:', chartData.length);",
+                  "    chartData.forEach(p => console.log('  ' + p.period + ': ¥' + p.amount + ' (' + p.count + '条)'));",
+                  "  }",
+                  "});",
+                  "pm.test('summary包含total和count', () => {",
+                  "  const { summary } = pm.response.json();",
+                  "  pm.expect(summary).to.have.property('total');",
+                  "  pm.expect(summary).to.have.property('count');",
+                  "  console.log('📊 汇总: total=¥' + summary.total + ' count=' + summary.count);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/stats?granularity=month",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.4 收入统计 - 按时间范围筛选 (GET /finance/stats?startMonth&endMonth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('chartData在指定时间范围内', () => {",
+                  "  const { chartData, summary } = pm.response.json();",
+                  "  console.log('📊 2026-07至2026-12期间:');",
+                  "  console.log('  数据点:', chartData.length);",
+                  "  console.log('  总收入: ¥' + summary.total, '记录数:', summary.count);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/stats?granularity=month&startMonth=2026-07&endMonth=2026-12",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.5 收入统计 - 按房源筛选 (GET /finance/stats?houseId=)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('统计数据仅针对指定房源', () => {",
+                  "  const { chartData, summary } = pm.response.json();",
+                  "  console.log('🏠 指定房源统计: total=¥' + summary.total);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/stats?granularity=month&houseId={{houseId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.6 ⭐ 收入更新记录查询 (GET /finance/updates) [新接口]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回更新记录数组', () => {",
+                  "  const updates = pm.response.json();",
+                  "  pm.expect(Array.isArray(updates)).to.be.true;",
+                  "  console.log('📝 总更新记录数:', updates.length);",
+                  "  if (updates.length > 0) {",
+                  "    const log = updates[0];",
+                  "    console.log('  最新记录:', log.month, 'oldAmount=' + log.oldAmount + ' newAmount=' + log.newAmount);",
+                  "    pm.expect(log).to.have.property('contractId');",
+                  "    pm.expect(log).to.have.property('houseId');",
+                  "    pm.expect(log).to.have.property('operatorId');",
+                  "    pm.expect(log).to.have.property('month');",
+                  "    pm.expect(log).to.have.property('oldAmount');",
+                  "    pm.expect(log).to.have.property('newAmount');",
+                  "    pm.expect(log).to.have.property('createdAt');",
+                  "  }",
+                  "});",
+                  "pm.test('记录中包含populate后的数据', () => {",
+                  "  const updates = pm.response.json();",
+                  "  if (updates.length > 0) {",
+                  "    // operatorId被populate为包含name字段的对象",
+                  "    if (updates[0].operatorId && typeof updates[0].operatorId === 'object') {",
+                  "      pm.expect(updates[0].operatorId).to.have.property('name');",
+                  "    }",
+                  "    // houseId被populate",
+                  "    if (updates[0].houseId && typeof updates[0].houseId === 'object') {",
+                  "      pm.expect(updates[0].houseId).to.have.property('title');",
+                  "    }",
+                  "  }",
+                  "});",
+                  "pm.test('记录按createdAt倒序排列', () => {",
+                  "  const updates = pm.response.json();",
+                  "  for (let i = 1; i < updates.length; i++) {",
+                  "    pm.expect(new Date(updates[i-1].createdAt).getTime())",
+                  "      .to.be.greaterThanOrEqual(new Date(updates[i].createdAt).getTime());",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/updates",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.7 更新记录 - 按合同筛选 (GET /finance/updates?contractId=)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('所有记录都属于指定合同', () => {",
+                  "  const updates = pm.response.json();",
+                  "  const contractId = pm.collectionVariables.get('contractId');",
+                  "  updates.forEach(log => {",
+                  "    const cid = typeof log.contractId === 'object' ? log.contractId._id : log.contractId;",
+                  "    pm.expect(String(cid)).to.eql(String(contractId));",
+                  "  });",
+                  "  console.log('✅ 合同 ' + contractId + ' 的更新记录: ' + updates.length + '条');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/updates?contractId={{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.8 更新记录 - 按时间范围筛选 (GET /finance/updates?startDate&endDate)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 200', () => pm.response.to.have.status(200));",
+                  "pm.test('返回指定时间范围内的记录', () => {",
+                  "  const updates = pm.response.json();",
+                  "  console.log('📝 2026-01至2026-12之间的记录:', updates.length, '条');",
+                  "  updates.forEach(log => {",
+                  "    const d = new Date(log.createdAt);",
+                  "    pm.expect(d.getFullYear()).to.eql(2026);",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/updates?startDate=2026-01-01&endDate=2026-12-31",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.9 ⭐ 添加财务记录 - 自动关联合同 (POST /finance 不传contractId) [修改]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 201', () => pm.response.to.have.status(201));",
+                  "pm.test('自动关联了有效合同的contractId', () => {",
+                  "  const record = pm.response.json();",
+                  "  pm.expect(record).to.have.property('contractId');",
+                  "  pm.expect(record.contractId).to.not.be.null;",
+                  "  console.log('✅ 自动关联合同:', typeof record.contractId === 'object' ? record.contractId._id : record.contractId);",
+                  "  console.log('   month=' + record.month + ' amount=' + record.amount);",
+                  "});",
+                  "pm.test('返回populate后的数据', () => {",
+                  "  const record = pm.response.json();",
+                  "  if (record.houseId && typeof record.houseId === 'object') {",
+                  "    pm.expect(record.houseId).to.have.property('title');",
+                  "    pm.expect(record.houseId).to.have.property('address');",
+                  "  }",
+                  "  if (record.contractId && typeof record.contractId === 'object') {",
+                  "    pm.expect(record.contractId).to.have.property('rent');",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"{{houseId}}\",\n  \"amount\": 2500,\n  \"month\": \"2026-08\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3.10 添加财务记录 - 房源无有效合同 (期望400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 400', () => pm.response.to.have.status(400));",
+                  "pm.test('提示需要先创建合同', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('合同');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"65a1b2c3d4e5f67890abcdef\",\n  \"amount\": 3000,\n  \"month\": \"2026-08\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3.11 添加财务记录 - 缺少必填字段 (期望400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 400', () => pm.response.to.have.status(400));",
+                  "pm.test('提示填写必填字段', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('必填');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{landlordToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 3000\n}"
+            }
+          }
+        },
+        {
+          "name": "3.12 租户无权访问财务接口 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));",
+                  "pm.test('提示无权限', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('权限');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.13 租户无权访问收入统计 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/stats",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "3.14 租户无权访问收入更新记录 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/updates",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 端到端完整流程测试",
+      "description": "按照真实业务流程顺序执行，验证所有环节的数据一致性",
+      "item": [
+        {
+          "name": "E2E-1 完整流程：创建→签署→自动财务→修改租金→级联更新→日志验证",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// ====== 步骤1: 登录 ======",
+                  "const loginUrl = pm.variables.replaceIn('{{baseUrl}}/auth/login');",
+                  "",
+                  "pm.sendRequest({",
+                  "  url: loginUrl,",
+                  "  method: 'POST',",
+                  "  header: { 'Content-Type': 'application/json' },",
+                  "  body: { mode: 'raw', raw: JSON.stringify({ phone: '13900000002', password: '123456', role: 'landlord' }) }",
+                  "}, (err, res) => {",
+                  "  if (err) { pm.expect.fail('登录失败: ' + err); return; }",
+                  "  pm.expect(res.code).to.eql(200);",
+                  "  const landlordToken = res.json().token;",
+                  "  console.log('✅ [1/10] 房东登录成功');",
+                  "",
+                  "  // ====== 步骤2: 获取房源 ======",
+                  "  pm.sendRequest({",
+                  "    url: pm.variables.replaceIn('{{baseUrl}}/houses'),",
+                  "    method: 'GET',",
+                  "    header: { 'Authorization': 'Bearer ' + landlordToken }",
+                  "  }, (err, res) => {",
+                  "    if (err || !res.json().length) { pm.expect.fail('获取房源失败'); return; }",
+                  "    const houseId = res.json()[0]._id;",
+                  "    const houseIdStr = typeof houseId === 'object' ? houseId._id : houseId;",
+                  "    console.log('✅ [2/10] 获取房源:', res.json()[0].title);",
+                  "",
+                  "    // ====== 步骤3: 获取租户 ======",
+                  "    pm.sendRequest({",
+                  "      url: pm.variables.replaceIn('{{baseUrl}}/contracts/landlord/tenants'),",
+                  "      method: 'GET',",
+                  "      header: { 'Authorization': 'Bearer ' + landlordToken }",
+                  "    }, (err, res) => {",
+                  "      const tenants = res.json();",
+                  "      if (err || !Array.isArray(tenants) || tenants.length === 0) {",
+                  "        console.log('⚠️ 无已确认的预约租户，需手动创建');",
+                  "        console.log('⏭ 跳过E2E测试 (无租户数据)');",
+                  "        return;",
+                  "      }",
+                  "      const tenantId = tenants[0]._id;",
+                  "      console.log('✅ [3/10] 获取租户:', tenants[0].name);",
+                  "",
+                  "      // ====== 步骤4: 创建合同 ======",
+                  "      pm.sendRequest({",
+                  "        url: pm.variables.replaceIn('{{baseUrl}}/contracts'),",
+                  "        method: 'POST',",
+                  "        header: { 'Authorization': 'Bearer ' + landlordToken, 'Content-Type': 'application/json' },",
+                  "        body: { mode: 'raw', raw: JSON.stringify({",
+                  "          tenantId, houseId: houseIdStr,",
+                  "          startDate: '2026-08-01', endDate: '2026-10-31',",
+                  "          rent: 3000, deposit: 3000",
+                  "        }) }",
+                  "      }, (err, res) => {",
+                  "        if (err || res.code !== 201) {",
+                  "          pm.expect.fail('创建合同失败: ' + (res ? res.json().message : err)); return;",
+                  "        }",
+                  "        const contractId = res.json()._id;",
+                  "        pm.expect(res.json().status).to.eql('draft');",
+                  "        console.log('✅ [4/10] 合同已创建(draft):', contractId);",
+                  "",
+                  "        // ====== 步骤5: 房东签署 ======",
+                  "        const signUrl = pm.variables.replaceIn('{{baseUrl}}/contracts/' + contractId + '/sign');",
+                  "        pm.sendRequest({",
+                  "          url: signUrl, method: 'PUT',",
+                  "          header: { 'Authorization': 'Bearer ' + landlordToken }",
+                  "        }, (err, res) => {",
+                  "          if (err) { pm.expect.fail('房东签署失败'); return; }",
+                  "          pm.expect(res.json().signedByLandlord).to.be.true;",
+                  "          console.log('✅ [5/10] 房东已签署');",
+                  "",
+                  "          // ====== 步骤6: 租户登录并签署 ======",
+                  "          pm.sendRequest({",
+                  "            url: loginUrl, method: 'POST',",
+                  "            header: { 'Content-Type': 'application/json' },",
+                  "            body: { mode: 'raw', raw: JSON.stringify({ phone: '13900000001', password: '123456', role: 'tenant' }) }",
+                  "          }, (err, res) => {",
+                  "            const tenantToken = res.json().token;",
+                  "            ",
+                  "            pm.sendRequest({",
+                  "              url: pm.variables.replaceIn('{{baseUrl}}/contracts/' + contractId + '/sign'),",
+                  "              method: 'PUT',",
+                  "              header: { 'Authorization': 'Bearer ' + tenantToken }",
+                  "            }, (err, res) => {",
+                  "              if (err) { pm.expect.fail('租户签署失败'); return; }",
+                  "              pm.expect(res.json().status).to.eql('signed');",
+                  "              pm.expect(res.json().signedByTenant).to.be.true;",
+                  "              console.log('✅ [6/10] 双方签署完成→合同signed');",
+                  "",
+                  "              // ====== 步骤7: 验证自动生成财务记录 ======",
+                  "              pm.sendRequest({",
+                  "                url: pm.variables.replaceIn('{{baseUrl}}/finance'),",
+                  "                method: 'GET',",
+                  "                header: { 'Authorization': 'Bearer ' + landlordToken }",
+                  "              }, (err, res) => {",
+                  "                const records = res.json();",
+                  "                const contractRecords = records.filter(r => {",
+                  "                  const cid = typeof r.contractId === 'object' ? r.contractId._id : r.contractId;",
+                  "                  return String(cid) === String(contractId);",
+                  "                });",
+                  "                console.log('✅ [7/10] 自动生成财务记录:', contractRecords.length, '条 (期望3条: 8月/9月/10月)');",
+                  "                pm.expect(contractRecords.length).to.eql(3);",
+                  "                pm.expect(contractRecords[0].amount).to.eql(3000);",
+                  "",
+                  "                // ====== 步骤8: 修改合同租金 ======",
+                  "                pm.sendRequest({",
+                  "                  url: pm.variables.replaceIn('{{baseUrl}}/contracts/' + contractId),",
+                  "                  method: 'PUT',",
+                  "                  header: { 'Authorization': 'Bearer ' + landlordToken, 'Content-Type': 'application/json' },",
+                  "                  body: { mode: 'raw', raw: JSON.stringify({ rent: 4500 }) }",
+                  "                }, (err, res) => {",
+                  "                  if (err) { pm.expect.fail('修改租金失败'); return; }",
+                  "                  pm.expect(res.json().rent).to.eql(4500);",
+                  "                  console.log('✅ [8/10] 租金已修改: 3000 → 4500');",
+                  "",
+                  "                  // ====== 步骤9: 验证财务记录级联更新 ======",
+                  "                  pm.sendRequest({",
+                  "                    url: pm.variables.replaceIn('{{baseUrl}}/finance'),",
+                  "                    method: 'GET',",
+                  "                    header: { 'Authorization': 'Bearer ' + landlordToken }",
+                  "                  }, (err, res) => {",
+                  "                    const updatedRecords = res.json().filter(r => {",
+                  "                      const cid = typeof r.contractId === 'object' ? r.contractId._id : r.contractId;",
+                  "                      return String(cid) === String(contractId);",
+                  "                    });",
+                  "                    console.log('✅ [9/10] 级联更新验证: ' + updatedRecords.length + '条记录金额=' + updatedRecords[0]?.amount);",
+                  "                    updatedRecords.forEach(r => pm.expect(r.amount).to.eql(4500));",
+                  "",
+                  "                    // ====== 步骤10: 验证变更日志 ======",
+                  "                    pm.sendRequest({",
+                  "                      url: pm.variables.replaceIn('{{baseUrl}}/finance/updates?contractId=' + contractId),",
+                  "                      method: 'GET',",
+                  "                      header: { 'Authorization': 'Bearer ' + landlordToken }",
+                  "                    }, (err, res) => {",
+                  "                      const logs = res.json();",
+                  "                      console.log('✅ [10/10] 变更日志: ' + logs.length + '条 (oldAmount=3000→newAmount=4500)');",
+                  "                      pm.expect(logs.length).to.eql(3);",
+                  "                      logs.forEach(log => {",
+                  "                        pm.expect(log.oldAmount).to.eql(3000);",
+                  "                        pm.expect(log.newAmount).to.eql(4500);",
+                  "                      });",
+                  "",
+                  "                      console.log('');",
+                  "                      console.log('🎉 ====== E2E完整流程测试全部通过! ======');",
+                  "                      console.log('  创建合同(draft) → 双方签署(signed) → 自动财务记录(3条)');",
+                  "                      console.log('  → 修改租金(3000→4500) → 财务记录级联更新 → 变更日志记录');",
+                  "                    });",
+                  "                  });",
+                  "                });",
+                  "              });",
+                  "            });",
+                  "          });",
+                  "        });",
+                  "      });",
+                  "    });",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "description": "此请求仅作为触发器，实际测试在test脚本中通过pm.sendRequest链式执行"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ 权限边界测试",
+      "item": [
+        {
+          "name": "租户尝试创建合同 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));",
+                  "pm.test('提示无权限', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('权限');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/contracts",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": \"{{tenantId}}\",\n  \"houseId\": \"{{houseId}}\",\n  \"startDate\": \"2026-07-01\",\n  \"endDate\": \"2027-07-01\",\n  \"rent\": 3000,\n  \"deposit\": 3000\n}"
+            }
+          }
+        },
+        {
+          "name": "租户尝试更新合同租金 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/contracts/{{contractId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rent\": 9999\n}"
+            }
+          }
+        },
+        {
+          "name": "租户尝试查看房东的财务记录 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "租户尝试访问财务图表数据 (期望403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 403', () => pm.response.to.have.status(403));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/stats",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tenantToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "未认证用户访问合同接口 (期望401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/contracts"
+          }
+        },
+        {
+          "name": "未认证用户访问财务接口 (期望401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('状态码 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/finance/stats"
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{landlordToken}}",
+        "type": "string"
+      }
+    ]
+  }
+}
