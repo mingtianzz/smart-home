@@ -1,5 +1,5 @@
 <template>
-  <div class="house-card" @click="$router.push(`/house/${house._id || house.id}`)">
+  <div class="house-card" @click="handleClick">
     <div class="card-image">
       <div class="image-glow"></div>
       <el-image
@@ -57,10 +57,19 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
-  house: { type: Object, required: true }
+  house: { type: Object, required: true },
+  page: { type: Number, default: 1 }
 })
+
+function handleClick() {
+  sessionStorage.setItem('houseScrollTop', window.scrollY.toString())
+  router.push({ path: `/house/${props.house._id || props.house.id}`, query: { fromPage: props.page } })
+}
 
 const statusType = computed(() => {
   const map = { pending: 'warning', approved: 'success', rejected: 'danger', rented: 'info', offline: 'info' }

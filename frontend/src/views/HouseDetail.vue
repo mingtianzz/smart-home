@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <el-button text @click="$router.back()" class="back-btn">
+    <el-button text @click="goBack" class="back-btn">
       <el-icon><ArrowLeft /></el-icon> 返回
     </el-button>
 
@@ -222,6 +222,15 @@ const appointmentDialog = ref(false)
 const currentImage = ref(0)
 
 const appointmentForm = ref({ date: '', time: '', note: '' })
+
+function goBack() {
+  const fromPage = route.query.fromPage
+  if (fromPage) {
+    router.push({ path: '/', query: { fromPage } })
+  } else {
+    router.back()
+  }
+}
 
 const avgRating = computed(() => {
   if (!reviews.value.length) return 0

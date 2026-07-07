@@ -61,7 +61,7 @@
         class="grid-item-enter"
         :style="{ animationDelay: (houses.indexOf(house) * 40) + 'ms' }"
       >
-        <HouseCard :house="house" />
+        <HouseCard :house="house" :page="page" />
       </div>
     </div>
 
@@ -87,9 +87,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import request from '../utils/request'
 import HouseCard from '../components/HouseCard.vue'
+
+const route = useRoute()
 
 const houses = ref([])
 const loading = ref(false)
@@ -124,6 +127,12 @@ async function loadHouses() {
     total.value = 0
   } finally {
     loading.value = false
+    await nextTick()
+    const savedScroll = parseInt(sessionStorage.getItem('houseScrollTop'))
+    if (savedScroll && route.query.fromPage) {
+      window.scrollTo({ top: savedScroll, behavior: 'smooth' })
+      sessionStorage.removeItem('houseScrollTop')
+    }
   }
 }
 
@@ -139,7 +148,19 @@ function resetSearch() {
 }
 
 onMounted(() => {
+  const fromPage = parseInt(route.query.fromPage)
+  if (fromPage && fromPage > 0) {
+    page.value = fromPage
+  }
   loadHouses()
+})
+
+watch(() => route.query.fromPage, (newVal) => {
+  const fromPage = parseInt(newVal)
+  if (fromPage && fromPage > 0) {
+    page.value = fromPage
+    loadHouses()
+  }
 })
 </script>
 
