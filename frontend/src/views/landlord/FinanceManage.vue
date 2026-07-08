@@ -7,7 +7,7 @@
         v-model="month"
         type="month"
         placeholder="选择月份"
-        @change="loadFinance"
+        @change="handleMonthChange"
         style="width:160px"
       />
     </div>
@@ -25,8 +25,8 @@
       <el-col :span="8">
         <el-card shadow="never" class="finance-stat-card">
           <div class="stat-item">
-            <div class="stat-label">记录数</div>
-            <div class="stat-value stat-count">{{ records.length }}</div>
+            <div class="stat-label">本月收入</div>
+            <div class="stat-value stat-month">¥{{ monthlyIncome.toLocaleString() }}</div>
           </div>
         </el-card>
       </el-col>
@@ -126,7 +126,10 @@ let chartInstance = null
 const contractDialogVisible = ref(false)
 const contractDetail = ref(null)
 
-const totalIncome = computed(() => records.value.reduce((s, r) => s + (Number(r.amount) || 0), 0))
+// Stats
+const totalIncome = ref(0)
+const monthlyIncome = ref(0)
+
 const contractCount = computed(() => {
   const ids = new Set(records.value.map(r => r.contractId?._id).filter(Boolean))
   return ids.size
@@ -179,19 +182,27 @@ async function loadChartData() {
     if (month.value) {
       const d = month.value
       params.endMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-      // Show past 12 months by default
       const start = new Date(d)
       start.setFullYear(start.getFullYear() - 1)
       params.startMonth = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`
     }
     const res = await request.get('/finance/stats', { params })
     chartData.value = res.chartData || []
+    totalIncome.value = res.totalIncome || 0
+    monthlyIncome.value = res.monthlyIncome || 0
     renderChart()
   } catch {
     chartData.value = []
+    totalIncome.value = 0
+    monthlyIncome.value = 0
   } finally {
     loadingChart.value = false
   }
+}
+
+function handleMonthChange() {
+  loadFinance()
+  loadChartData()
 }
 
 function renderChart() {
@@ -229,15 +240,25 @@ function renderChart() {
     },
     series: [
       {
-        type: 'bar',
+        type: 'line',
         data: data.map(d => d.amount),
-        barWidth: '14%',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: {
+          color: '#1d4359',
+          width: 3,
+        },
         itemStyle: {
+          color: '#1d4359',
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
+        areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#1d4359' },
-            { offset: 1, color: 'rgba(29,67,89,0.35)' },
+            { offset: 0, color: 'rgba(29,67,89,0.3)' },
+            { offset: 1, color: 'rgba(29,67,89,0.02)' },
           ]),
-          borderRadius: [4, 4, 0, 0],
         },
       },
     ],
@@ -307,7 +328,7 @@ watch(granularity, loadChartData)
 }
 
 .stat-income { color: #d4943a; }
-.stat-count { color: #1d4359; }
+.stat-month { color: #1d4359; }
 .stat-contract { color: #4caf7d; }
 
 .ml-10 { margin-left: 10px; }
