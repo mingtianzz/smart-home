@@ -44,8 +44,14 @@
         <el-descriptions-item label="租金">¥{{ detailData.rent }}</el-descriptions-item>
         <el-descriptions-item label="面积">{{ detailData.size }}㎡</el-descriptions-item>
         <el-descriptions-item label="地址" :span="2">{{ detailData.area }} {{ detailData.address }}</el-descriptions-item>
-        <el-descriptions-item label="房东">{{ detailData.landlordId?.name || '--' }}</el-descriptions-item>
-        <el-descriptions-item label="联系电话">{{ detailData.landlordId?.phone || '--' }}</el-descriptions-item>
+        <el-descriptions-item label="房东">{{ detailData.landlordName || detailData.landlordId?.name || '--' }}</el-descriptions-item>
+        <el-descriptions-item label="联系电话">{{ detailData.landlordPhone || detailData.landlordId?.phone || '--' }}</el-descriptions-item>
+        <el-descriptions-item label="房屋图片" :span="2">
+          <div v-if="detailData.images && detailData.images.length > 0" class="house-images">
+            <img v-for="(img, idx) in detailData.images" :key="idx" :src="img" class="review-img" />
+          </div>
+          <span v-else>暂无图片</span>
+        </el-descriptions-item>
         <el-descriptions-item label="状态" :span="2">
           <el-tag :type="statusType(detailData.status)" size="small" class="status-tag">{{ statusText(detailData.status) }}</el-tag>
         </el-descriptions-item>
@@ -144,3 +150,18 @@ async function submitReject() {
 
 onMounted(loadHouses)
 </script>
+
+<style scoped>
+.house-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.review-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e4e8e8;
+}
+</style>

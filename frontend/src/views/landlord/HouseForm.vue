@@ -15,6 +15,18 @@
           <el-input v-model="form.title" placeholder="请输入房源标题" size="large" />
         </el-form-item>
         <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="landlordName">
+              <el-input v-model="form.landlordName" placeholder="请输入您的姓名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="联系方式" prop="landlordPhone">
+              <el-input v-model="form.landlordPhone" placeholder="请输入联系电话" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="面积(m²)" prop="size">
               <el-input-number v-model="form.size" :min="1" :max="10000" style="width:100%" size="large" />
@@ -130,6 +142,8 @@ const isEdit = computed(() => !!route.params.id)
 
 const form = reactive({
   title: '',
+  landlordName: '',
+  landlordPhone: '',
   area: null,
   rent: null,
   deposit: null,
@@ -143,6 +157,8 @@ const form = reactive({
 
 const rules = {
   title: [{ required: true, message: '请输入房源标题', trigger: 'blur' }],
+  landlordName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  landlordPhone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }, { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }],
   size: [{ required: true, message: '请输入面积', trigger: 'blur' }],
   rent: [{ required: true, message: '请输入租金', trigger: 'blur' }],
   address: [{ required: true, message: '请输入地址', trigger: 'blur' }]
@@ -185,6 +201,8 @@ async function loadHouse() {
     form.title = h.title || ''; form.area = h.area; form.rent = h.rent; form.deposit = h.deposit
     form.type = h.type || ''; form.size = h.size || ''; form.address = h.address || ''
     form.description = h.description || ''
+    form.landlordName = h.landlordId?.name || ''
+    form.landlordPhone = h.landlordId?.phone || ''
     if (Array.isArray(h.facilities)) form.facilities = [...h.facilities]
     else if (typeof h.facilities === 'string') {
       try { form.facilities = JSON.parse(h.facilities) } catch { form.facilities = [] }

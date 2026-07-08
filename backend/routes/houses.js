@@ -51,7 +51,7 @@ router.get('/all', authenticate, authorize('admin'), async (req, res, next) => {
     if (req.query.status) {
       filter.status = req.query.status;
     }
-    const houses = await House.find(filter).sort({ createdAt: -1 });
+    const houses = await House.find(filter).populate('landlordId', 'name phone').sort({ createdAt: -1 });
     res.json(houses);
   } catch (err) {
     next(err);
@@ -98,10 +98,10 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/houses - Create house
 router.post('/', authenticate, authorize('landlord'), async (req, res, next) => {
   try {
-    const { title, area, address, rent, deposit, type, size, floor, facilities, description, images } = req.body;
+    const { title, area, address, rent, deposit, type, size, floor, facilities, description, images, landlordName, landlordPhone } = req.body;
 
-    if (!title || !area || !address || !type) {
-      return res.status(400).json({ message: '请填写必填字段（标题、区域、地址、类型）' });
+    if (!title || !area || !address || !type || !landlordName || !landlordPhone) {
+      return res.status(400).json({ message: '请填写必填字段（标题、区域、地址、类型、姓名、联系方式）' });
     }
 
     const numRent = Number(rent);
@@ -115,6 +115,8 @@ router.post('/', authenticate, authorize('landlord'), async (req, res, next) => 
 
     const house = new House({
       landlordId: req.user._id,
+      landlordName,
+      landlordPhone,
       title,
       area,
       address,
@@ -161,7 +163,7 @@ router.put('/:id', authenticate, authorize('landlord'), async (req, res, next) =
       house.size = num;
     }
 
-    const stringFields = ['title', 'area', 'address', 'type', 'floor', 'description'];
+    const stringFields = ['title', 'area', 'address', 'type', 'floor', 'description', 'landlordName', 'landlordPhone'];
     stringFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         house[field] = req.body[field];
