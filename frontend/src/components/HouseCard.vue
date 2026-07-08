@@ -32,7 +32,7 @@
       <div class="house-meta">
         <span class="meta-item">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
-          {{ house.area || house.size }}m²
+          {{ house.area }} · {{ house.size }}m²
         </span>
         <span class="meta-divider"></span>
         <span class="meta-item">
