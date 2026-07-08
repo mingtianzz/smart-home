@@ -2,6 +2,13 @@
   <header class="navbar">
     <div class="navbar-inner">
       <router-link to="/" class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="logo-icon">
+          <path d="M3 9.5L12 3L21 9.5V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V9.5Z" stroke="#1d4359" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M9 21V13H15V21" stroke="#1d4359" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="17" y="7" width="3" height="2" rx="0.5" fill="#d4943a"/>
+          <rect x="4" y="7" width="3" height="2" rx="0.5" fill="#d4943a"/>
+          <rect x="10" y="7" width="4" height="2" rx="0.5" fill="#d4943a"/>
+        </svg>
         <span class="logo-text">万家安良居</span>
       </router-link>
 
@@ -140,9 +147,10 @@ function handleLogout() {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   transition: opacity 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  text-decoration: none;
 }
 
 .logo:hover {
@@ -150,14 +158,13 @@ function handleLogout() {
 }
 
 .logo-icon {
-  display: flex;
-  align-items: center;
+  flex-shrink: 0;
 }
 
 .logo-text {
   font-size: 32px;
-  font-weight: 400;
-  background: linear-gradient(135deg, #1d4359 0%, #15334a 100%);
+  font-weight: 700;
+  background: linear-gradient(135deg, #1d4359, #3b6f8f);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

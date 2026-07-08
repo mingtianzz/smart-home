@@ -58,27 +58,31 @@
     </div>
 
     <el-card class="search-card" shadow="never">
-      <el-form :model="searchForm" inline class="search-form">
-        <el-form-item label="关键词">
-          <el-input v-model="searchForm.keyword" placeholder="搜索房源标题/地址" clearable class="search-input-keyword" />
-        </el-form-item>
-        <el-form-item label="区域">
-          <el-input v-model="searchForm.area" placeholder="如: 朝阳区" style="width:120px" clearable />
-        </el-form-item>
-        <el-form-item label="租金">
-          <el-input-number v-model="searchForm.minRent" :min="0" placeholder="最低" style="width:120px" />
-          <span class="range-sep">—</span>
-          <el-input-number v-model="searchForm.maxRent" :min="0" placeholder="最高" style="width:120px" />
-        </el-form-item>
-        <el-form-item label="类型">
-          <el-select v-model="searchForm.type" placeholder="房屋类型" clearable style="width:140px">
-            <el-option label="整租" value="整租" />
-            <el-option label="合租" value="合租" />
-            <el-option label="单间" value="单间" />
-            <el-option label="公寓" value="公寓" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
+      <el-form :model="searchForm" inline class="search-form" @submit.prevent="searchHouses">
+        <div class="search-fields">
+          <el-form-item label="关键词" class="search-item">
+            <el-input v-model="searchForm.keyword" placeholder="搜索房源标题/地址" clearable class="s-input" />
+          </el-form-item>
+          <el-form-item label="区域" class="search-item">
+            <el-input v-model="searchForm.area" placeholder="如: 朝阳区" clearable class="s-input narrow" />
+          </el-form-item>
+          <el-form-item label="租金" class="search-item">
+            <div class="rent-group">
+              <el-input-number v-model="searchForm.minRent" :min="0" placeholder="最低" class="s-input narrow" controls-position="right" />
+              <span class="range-sep">—</span>
+              <el-input-number v-model="searchForm.maxRent" :min="0" placeholder="最高" class="s-input narrow" controls-position="right" />
+            </div>
+          </el-form-item>
+          <el-form-item label="类型" class="search-item">
+            <el-select v-model="searchForm.type" placeholder="房屋类型" clearable class="s-input narrow">
+              <el-option label="整租" value="整租" />
+              <el-option label="合租" value="合租" />
+              <el-option label="单间" value="单间" />
+              <el-option label="公寓" value="公寓" />
+            </el-select>
+          </el-form-item>
+        </div>
+        <el-form-item class="search-actions">
           <el-button type="primary" @click="searchHouses" :loading="loading" class="search-btn">搜索房源</el-button>
           <el-button @click="resetSearch" class="reset-btn">重置</el-button>
         </el-form-item>
@@ -430,40 +434,114 @@ function resetSearch() {
   max-width: 1200px;
   border-radius: 16px;
   border: 1px solid #eef0f0;
+  padding: 0 8px;
 }
 
 .search-form {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 12px;
+  width: 100%;
 }
 
-.search-input-keyword {
-  width: 220px;
+.search-fields {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-item {
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
+}
+
+.search-item :deep(.el-form-item__label) {
+  font-size: 13px;
+  color: #516473;
+  font-weight: 500;
+  padding-right: 6px;
+}
+
+.s-input {
+  width: 200px;
+}
+
+.s-input.narrow {
+  width: 110px;
+}
+
+.s-input :deep(.el-input__wrapper) {
+  border-radius: 8px;
+  border: 1px solid #e4e9ec;
+  box-shadow: none;
+  transition: border-color 0.2s;
+}
+
+.s-input :deep(.el-input__wrapper:hover) {
+  border-color: #1d4359;
+}
+
+.s-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #1d4359;
+  box-shadow: 0 0 0 1px #1d4359;
+}
+
+.rent-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .range-sep {
-  margin: 0 10px;
   color: #c0c5c5;
   font-weight: 500;
+  font-size: 14px;
+  margin: 0 2px;
+}
+
+.search-actions {
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .search-btn {
-  min-width: 110px;
+  min-width: 100px;
+  height: 36px;
+  border-radius: 8px;
 }
 
 .reset-btn {
   color: #516473;
   border-color: #d6dee4;
-  font-weight: 500;
+  height: 36px;
+  border-radius: 8px;
 }
 
 .reset-btn:hover {
   color: #1d4359;
   border-color: #1d4359;
   background: rgba(29, 67, 89, 0.04);
+}
+
+/* ── 响应式：窄屏时搜索换行 ── */
+@media (max-width: 1000px) {
+  .search-form {
+    flex-wrap: wrap;
+  }
+  .search-fields {
+    flex-wrap: wrap;
+  }
+  .search-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* ── Grid animation ── */
